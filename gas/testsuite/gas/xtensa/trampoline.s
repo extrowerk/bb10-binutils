@@ -19,22 +19,3 @@
 	.endr
 3:
 	j	3b
-	bnez	a2, 4f
-	.rep	50000
-	and	a2, a2, a3
-	_ret
-	.endr
-	_nop
-	_nop
-4:
-	j	4b
-
-5:
-	j	6f
-
-	.rep	43691
-	_nop
-	.endr
-
-6:
-	j	5b

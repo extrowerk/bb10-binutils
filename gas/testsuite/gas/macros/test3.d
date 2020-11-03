@@ -1,6 +1,6 @@
 #objdump: -r
 #name: macro test 3
-#notarget: nds32*-*-*
+#not-target: nds32*-*-*
 
 .*: +file format .*
 

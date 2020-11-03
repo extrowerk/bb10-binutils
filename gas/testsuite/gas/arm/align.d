@@ -1,7 +1,7 @@
 # name: ARM V6t2 Alignment
 # as: -march=armv6kt2
 # objdump: -dr --prefix-addresses --show-raw-insn
-#skip: *-*-pe *-*-wince
+#skip: *-*-*coff *-*-pe *-*-wince *-*-*aout* *-*-netbsd *-*-riscix*
 
 .*: +file format .*arm.*
 

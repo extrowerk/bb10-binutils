@@ -1,7 +1,6 @@
 #name: blx->bl convert under no -march/cpu
-#warning_output: blx-bl-convert.l
+#error-output: blx-bl-convert.l
 #objdump: -d
-#skip: *-*-pe *-wince-* *-*-vxworks *-*-netbsdelf *-*-nto*
 
 .*:     file format .*
 

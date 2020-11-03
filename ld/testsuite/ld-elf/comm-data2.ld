@@ -9,7 +9,6 @@ SECTIONS
   .rela.dyn : { *(.rela.*) }
   .interp : { *(.interp) }
   .hash : { *(.hash) }
-  .gnu.hash : { *(.gnu.hash) }
   .dynsym : { *(.dynsym) }
   .dynstr : { *(.dynstr) }
   . = 0x76540000;

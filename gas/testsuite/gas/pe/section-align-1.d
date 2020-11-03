@@ -1,6 +1,5 @@
 #objdump: -h
 #name: section alignment
-#skip: sh-*
 
 # Test that alignment works in .section directives.
 

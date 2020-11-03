@@ -1,6 +1,8 @@
 # name: Thumb-2 LDM/STM
 # as: -march=armv6t2
 # objdump: -dr --prefix-addresses --show-raw-insn
+# not-target: *-*-*aout*
+
 
 .*: +file format .*arm.*
 

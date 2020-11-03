@@ -1,7 +1,7 @@
 #objdump: -r
 #name: macro vararg
 # darwin (mach-o) reverses relocs.
-#notarget: *-*-darwin*
+#not-target: *-*-darwin*
 
 .*: +file format .*
 

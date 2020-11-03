@@ -3,7 +3,7 @@
 #ld: -r
 #readelf: -h
 # This test is only valid on ELF based ports.
-# not-target: *-*-pe *-*-wince
+# not-target: *-*-*coff *-*-pe *-*-wince *-*-*aout* *-*-netbsd *-*-riscix*
 # Check that we set the hard-float ABI flag directly
 
 ELF Header:

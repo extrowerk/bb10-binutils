@@ -7,4 +7,4 @@
 
 Attribute Section: gnu
 File Attributes
-  Tag_GNU_Power_ABI_FP: hard float, unspecified long double
+  Tag_GNU_Power_ABI_FP: Hard float

@@ -1,6 +1,5 @@
 SECTIONS
 {
-  . = SIZEOF_HEADERS;
   .text : { *(.text) }
   /* Alignment at beginning shouldn't result in empty section being kept.  */
   .text1 ALIGN (4096) :

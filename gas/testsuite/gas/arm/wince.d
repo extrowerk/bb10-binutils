@@ -1,8 +1,8 @@
 #objdump: -dr --prefix-addresses --show-raw-insn
 #name: ARM WinCE basic tests
-#as: -mcpu=arm7m -EL -mccs
+#as: -mcpu=arm7m -EL
 #source: wince.s
-#noskip: *-wince-*
+#not-skip: *-wince-*
 
 # Some WinCE specific tests.
 

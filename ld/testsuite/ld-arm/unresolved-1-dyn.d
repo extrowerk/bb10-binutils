@@ -5,4 +5,4 @@
 
 Relocation section '\.rel\.dyn' .*
  Offset .*
-^.*  00000000 R_ARM_NONE.+
+.* R_ARM_GLOB_DAT +00000000 +foo

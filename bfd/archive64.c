@@ -1,5 +1,5 @@
-/* Support for 64-bit archives.
-   Copyright (C) 1996-2019 Free Software Foundation, Inc.
+/* Support for 64-bit ELF archives.
+   Copyright (C) 1996-2014 Free Software Foundation, Inc.
    Ian Lance Taylor, Cygnus Support
    Linker support added by Mark Mitchell, CodeSourcery, LLC.
    <mark@codesourcery.com>
@@ -21,8 +21,7 @@
    Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
    MA 02110-1301, USA.  */
 
-/* This file supports the 64-bit archives.  We use the same format as
-   the 64-bit (MIPS) ELF archives.  */
+/* This file supports the 64-bit (MIPS) ELF archives.  */
 
 #include "sysdep.h"
 #include "bfd.h"
@@ -32,10 +31,14 @@
 /* Irix 6 defines a 64bit archive map format, so that they can
    have archives more than 4 GB in size.  */
 
+bfd_boolean bfd_elf64_archive_slurp_armap (bfd *);
+bfd_boolean bfd_elf64_archive_write_armap
+  (bfd *, unsigned int, struct orl *, unsigned int, int);
+
 /* Read an Irix 6 armap.  */
 
 bfd_boolean
-_bfd_archive_64_bit_slurp_armap (bfd *abfd)
+bfd_elf64_archive_slurp_armap (bfd *abfd)
 {
   struct artdata *ardata = bfd_ardata (abfd);
   char nextname[17];
@@ -100,6 +103,8 @@ _bfd_archive_64_bit_slurp_armap (bfd *abfd)
     return FALSE;
   carsyms = ardata->symdefs;
   stringbase = ((char *) ardata->symdefs) + carsym_size;
+  stringbase[stringsize] = 0;
+  stringend = stringbase + stringsize;
 
   raw_armap = (bfd_byte *) bfd_alloc (abfd, ptrsize);
   if (raw_armap == NULL)
@@ -113,17 +118,15 @@ _bfd_archive_64_bit_slurp_armap (bfd *abfd)
       goto release_raw_armap;
     }
 
-  stringend = stringbase + stringsize;
-  *stringend = 0;
   for (i = 0; i < nsymz; i++)
     {
       carsyms->file_offset = bfd_getb64 (raw_armap + i * 8);
       carsyms->name = stringbase;
-      stringbase += strlen (stringbase);
-      if (stringbase != stringend)
-	++stringbase;
+      if (stringbase < stringend)
+	stringbase += strlen (stringbase) + 1;
       ++carsyms;
     }
+  *stringbase = '\0';
 
   ardata->symdef_count = nsymz;
   ardata->first_file_filepos = bfd_tell (abfd);
@@ -147,11 +150,11 @@ release_symdefs:
    linker crashes.  */
 
 bfd_boolean
-_bfd_archive_64_bit_write_armap (bfd *arch,
-				 unsigned int elength,
-				 struct orl *map,
-				 unsigned int symbol_count,
-				 int stridx)
+bfd_elf64_archive_write_armap (bfd *arch,
+			       unsigned int elength,
+			       struct orl *map,
+			       unsigned int symbol_count,
+			       int stridx)
 {
   unsigned int ranlibsize = (symbol_count * 8) + 8;
   unsigned int stringsize = stridx;
@@ -177,7 +180,7 @@ _bfd_archive_64_bit_write_armap (bfd *arch,
   if (!_bfd_ar_sizepad (hdr.ar_size, sizeof (hdr.ar_size), mapsize))
     return FALSE;
   _bfd_ar_spacepad (hdr.ar_date, sizeof (hdr.ar_date), "%ld",
-		    time (NULL));
+                    time (NULL));
   /* This, at least, is what Intel coff sets the values to.: */
   _bfd_ar_spacepad (hdr.ar_uid, sizeof (hdr.ar_uid), "%ld", 0);
   _bfd_ar_spacepad (hdr.ar_gid, sizeof (hdr.ar_gid), "%ld", 0);

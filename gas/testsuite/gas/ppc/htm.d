@@ -1,5 +1,5 @@
-#as: -mpower8
-#objdump: -dr -Mpower8
+#as: -mhtm
+#objdump: -dr -Mhtm
 #name: Hardware Transactional Memory (HTM) tests
 
 .*

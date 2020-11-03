@@ -1,4 +1,3 @@
-#as: -mabi=lp64
 #objdump: -dr
 
 .*:     file format .*

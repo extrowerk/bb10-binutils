@@ -1,6 +1,6 @@
 /* This file defines the interface between the simulator and gdb.
 
-   Copyright (C) 1993-2019 Free Software Foundation, Inc.
+   Copyright (C) 1993-2014 Free Software Foundation, Inc.
 
    This file is part of GDB.
 
@@ -60,10 +60,9 @@ typedef enum {
 } SIM_RC;
 
 
-/* Some structs, as opaque types.  */
+/* The bfd struct, as an opaque type.  */
 
 struct bfd;
-struct host_callback_struct;
 
 
 /* Main simulator entry points.  */
@@ -104,8 +103,7 @@ struct host_callback_struct;
    sim_create_inferior.  FIXME: What should the state of the simulator
    be? */
 
-SIM_DESC sim_open (SIM_OPEN_KIND kind, struct host_callback_struct *callback,
-		   struct bfd *abfd, char * const *argv);
+SIM_DESC sim_open (SIM_OPEN_KIND kind, struct host_callback_struct *callback, struct bfd *abfd, char **argv);
 
 
 /* Destory a simulator instance.
@@ -162,8 +160,7 @@ SIM_RC sim_load (SIM_DESC sd, const char *prog, struct bfd *abfd, int from_tty);
    address space (according to the applicable ABI) and the program
    counter and stack pointer set accordingly. */
 
-SIM_RC sim_create_inferior (SIM_DESC sd, struct bfd *abfd,
-			    char * const *argv, char * const *env);
+SIM_RC sim_create_inferior (SIM_DESC sd, struct bfd *abfd, char **argv, char **env);
 
 
 /* Fetch LENGTH bytes of the simulated program's memory.  Start fetch
@@ -261,7 +258,7 @@ int sim_stop (SIM_DESC sd);
    that information is not directly accessable via this interface.
 
    SIM_SIGNALLED: The program has been terminated by a signal. The
-   simulator has encountered target code that causes the program
+   simulator has encountered target code that causes the the program
    to exit with signal SIGRC.
 
    SIM_RUNNING, SIM_POLLING: The return of one of these values

@@ -1,7 +1,7 @@
 #objdump: --syms --special-syms
 #name: ARM Mapping Symbols Test 4
 # This test is only valid on ELF based ports.
-#notarget: *-*-pe *-*-wince
+#not-target: *-*-*coff *-*-pe *-*-wince *-*-*aout* *-*-netbsd *-*-riscix*
 
 .*: +file format.*arm.*
 

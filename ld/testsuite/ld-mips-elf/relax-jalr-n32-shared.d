@@ -2,8 +2,7 @@
 #source: relax-jalr.s
 #as: -march=from-abi -KPIC -n32 -EB
 #objdump: --prefix-addresses -d --show-raw-insn
-#ld: -shared -melf32btsmipn32
-#target: [check_shared_lib_support]
+#ld: --relax -shared -melf32btsmipn32
 
 .*:     file format elf.*mips.*
 

@@ -44,5 +44,5 @@ foo:
 	jal	bar
 
 # Force at least 8 (non-delay-slot) zero bytes, to make 'objdump' print ...
-	.align	4, 0
+	.align	2
 	.space	16

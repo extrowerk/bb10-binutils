@@ -1,6 +1,6 @@
 #as: -mcpu=5206
 #source: tls-ld-2.s
-#ld: -shared --hash-style=sysv
+#ld: -shared
 #readelf: -d -r
 
 Dynamic section at offset .* contains 6 entries:

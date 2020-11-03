@@ -1,4 +1,4 @@
-. ${srcdir}/emulparams/msp430elf.sh
+. ${srcdir}/emulparams/msp430.sh
 
 ARCH=MSP430x43
 ROM_START=0x02000

@@ -2,7 +2,7 @@
 #as: --compress-debug-sections
 #ld: -shared
 #readelf: -S --wide
-#target: *-*-linux* *-*-gnu* arm*-*-uclinuxfdpiceabi-*-nto*
+#target: *-*-linux* *-*-gnu* *-*-nto*
 
 #failif
 #...

@@ -1,6 +1,5 @@
 #ld:  $srcdir/$subdir/var1.t --sort-section name
 #nm: -n
-#xfail: d30v-*-* dlx-*-* ft32-*-* microblaze-*-*
 
 #...
 [0-9a-f]* D var1

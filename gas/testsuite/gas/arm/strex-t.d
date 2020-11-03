@@ -1,6 +1,6 @@
 # name: STREXH/STREXB. - Thumb
 # objdump: -dr --prefix-address --show-raw-insn
-# skip: *-*-pe *-*-wince
+# skip: *-*-*coff *-*-pe *-*-wince *-*-*aout* *-*-netbsd
 
 .*: +file format .*arm.*
 

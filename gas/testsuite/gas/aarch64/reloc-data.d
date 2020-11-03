@@ -1,4 +1,3 @@
-#as: -mabi=lp64
 #objdump: -dr
 #skip: aarch64_be-*-*
 

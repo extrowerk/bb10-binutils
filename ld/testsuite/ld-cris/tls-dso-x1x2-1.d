@@ -1,7 +1,7 @@
 #source: tls-hx.s
 #source: tls-x1x2.s
 #as: --no-underscore --em=criself
-#ld: -m crislinux --shared --hash-style=sysv
+#ld: -m crislinux --shared
 #objdump: -T
 
 # A DSO providing the TLS variables x1 and x2.

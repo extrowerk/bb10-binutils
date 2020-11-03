@@ -4,7 +4,6 @@
 #as: --32
 #readelf: -r --wide
 #target: x86_64-*-* i?86-*-*
-#notarget: x86_64-*-nacl* i?86-*-nacl*
 
 Relocation section '.rel.ifunc' at .*
 [ ]+Offset[ ]+Info[ ]+Type[ ]+.*
@@ -12,4 +11,5 @@ Relocation section '.rel.ifunc' at .*
 
 Relocation section '.rel.plt' at .*
 [ ]+Offset[ ]+Info[ ]+Type[ ]+.*
+[0-9a-f]+[ ]+[0-9a-f]+[ ]+R_386_IRELATIVE[ ]*
 [0-9a-f]+[ ]+[0-9a-f]+[ ]+R_386_IRELATIVE[ ]*

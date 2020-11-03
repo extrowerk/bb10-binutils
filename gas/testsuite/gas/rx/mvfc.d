@@ -1,7 +1,6 @@
-#source: ./mvfc.s
 #objdump: -dr
 
-.*:     file format .*
+dump\.o:     file format .*
 
 
 Disassembly of section \.text:
@@ -23,6 +22,4 @@ Disassembly of section \.text:
   27:	fd 6a 9f                      	mvfc	bpc, r15
   2a:	fd 6a b0                      	mvfc	fintv, r0
   2d:	fd 6a bf                      	mvfc	fintv, r15
-  30:	fd 6a d0                      	mvfc	extb, r0
-  33:	fd 6a df                      	mvfc	extb, r15
 

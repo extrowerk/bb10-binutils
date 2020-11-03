@@ -22,7 +22,3 @@ foo:
 	li	$2, %got_page(bar)
 	.end	foo
 	.size	foo, . - foo
-
-# Force some (non-delay-slot) zero bytes, to make 'objdump' print ...
-	.align	4, 0
-	.space	16

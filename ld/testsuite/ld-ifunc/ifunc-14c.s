@@ -2,6 +2,6 @@
 	.globl xxx
 	.type	xxx, @function
 xxx:
-	jmp	foo@PLT
+	jmp	foo
 	.size	xxx, .-xxx
 	.hidden	foo

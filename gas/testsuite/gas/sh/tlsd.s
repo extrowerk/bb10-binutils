@@ -1,4 +1,4 @@
-	.section	.tdata,"awT",@progbits
+	.section	.tbss,"awT",@nobits
 	.align 2
 	.global	foo, bar
 	.hidden bar

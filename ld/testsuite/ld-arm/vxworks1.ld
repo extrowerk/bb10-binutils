@@ -1,7 +1,3 @@
-OUTPUT_FORMAT("elf32-littlearm-vxworks", "elf32-bigarm-vxworks",
-	      "elf32-littlearm-vxworks")
-OUTPUT_ARCH(arm)
-
 SECTIONS
 {
   . = 0x80000;

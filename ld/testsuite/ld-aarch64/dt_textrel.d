@@ -3,4 +3,5 @@
 #readelf: -d
 #...
 .*TEXTREL.*
-#pass
+.*
+

@@ -1,7 +1,7 @@
 #source: unknown2.s
 #ld: -shared
 #readelf: -S
-#target: *-*-linux* *-*-gnu* arm*-*-uclinuxfdpiceabi-*-nto*
+#target: *-*-linux* *-*-gnu* *-*-nto*
 
 #...
   \[[ 0-9]+\] \.note.foo[ \t]+NOTE[ \t]+.*

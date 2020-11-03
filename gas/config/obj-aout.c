@@ -1,5 +1,5 @@
 /* a.out object file format
-   Copyright (C) 1989-2019 Free Software Foundation, Inc.
+   Copyright (C) 1989-2014 Free Software Foundation, Inc.
 
    This file is part of GAS, the GNU Assembler.
 
@@ -152,9 +152,10 @@ obj_aout_weak (int ignore ATTRIBUTE_UNUSED)
 
   do
     {
-      c = get_symbol_name (&name);
+      name = input_line_pointer;
+      c = get_symbol_end ();
       symbolP = symbol_find_or_make (name);
-      (void) restore_line_pointer (c);
+      *input_line_pointer = c;
       SKIP_WHITESPACE ();
       S_SET_WEAK (symbolP);
       if (c == ',')
@@ -181,9 +182,10 @@ obj_aout_type (int ignore ATTRIBUTE_UNUSED)
   int c;
   symbolS *sym;
 
-  c = get_symbol_name (&name);
+  name = input_line_pointer;
+  c = get_symbol_end ();
   sym = symbol_find_or_make (name);
-  (void) restore_line_pointer (c);
+  *input_line_pointer = c;
   SKIP_WHITESPACE ();
   if (*input_line_pointer == ',')
     {

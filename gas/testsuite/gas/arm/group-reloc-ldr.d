@@ -1,5 +1,5 @@
 #objdump: -dr --prefix-addresses --show-raw-insn
-#skip: *-*-pe *-*-wince *-*-vxworks
+#skip: *-*-*coff *-*-pe *-*-wince *-*-*aout* *-*-netbsd *-*-riscix* *-*-vxworks
 #name: Group relocation tests (ldr)
 
 .*: +file format .*arm.*

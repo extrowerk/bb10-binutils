@@ -78,7 +78,6 @@ reloc-types.h
 reloc.cc
 reloc.h
 resolve.cc
-s390.cc
 script-c.h
 script-sections.cc
 script-sections.h

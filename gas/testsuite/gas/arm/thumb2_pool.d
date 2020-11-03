@@ -1,7 +1,7 @@
 # as: -march=armv6t2
 # objdump: -dr --prefix-addresses --show-raw-insn
 # This test is only valid on ELF based ports.
-#notarget: *-*-pe *-*-wince *-*-vxworks
+#not-target: *-*-*coff *-*-pe *-*-wince *-*-*aout* *-*-netbsd *-*-riscix*
 
 .*: +file format .*arm.*
 

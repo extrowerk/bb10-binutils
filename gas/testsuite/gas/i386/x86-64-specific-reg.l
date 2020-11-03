@@ -315,62 +315,62 @@
 .*:[0-9]*: Error: .*r15.* 2 .*invlpga.*
 .*:[0-9]*: Error: .*r15.* 1 .*skinit.*
 # xmm1
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm2
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm3
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm4
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm5
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm6
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm7
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm8
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm9
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm10
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm11
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm12
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm13
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm14
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*
 # xmm15
-.*:[0-9]*: Error: .*blendvpd.*
-.*:[0-9]*: Error: .*blendvps.*
-.*:[0-9]*: Error: .*pblendv.*
+.*:[0-9]*: Error: .*blendvpd.*xmm0.*
+.*:[0-9]*: Error: .*blendvps.*xmm0.*
+.*:[0-9]*: Error: .*pblendv.*xmm0.*

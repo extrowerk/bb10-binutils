@@ -1,5 +1,5 @@
 /* input_file.c - Deal with Input Files -
-   Copyright (C) 1987-2019 Free Software Foundation, Inc.
+   Copyright (C) 1987-2014 Free Software Foundation, Inc.
 
    This file is part of GAS, the GNU Assembler.
 
@@ -42,13 +42,13 @@ int preprocess = 0;
 /* We use static data: the data area is not sharable.  */
 
 static FILE *f_in;
-static const char *file_name;
+static char *file_name;
 
 /* Struct for saving the state of this module for file includes.  */
 struct saved_file
   {
     FILE * f_in;
-    const char * file_name;
+    char * file_name;
     int    preprocess;
     char * app_save;
   };
@@ -79,9 +79,9 @@ input_file_buffer_size (void)
 char *
 input_file_push (void)
 {
-  struct saved_file *saved;
+  register struct saved_file *saved;
 
-  saved = XNEW (struct saved_file);
+  saved = (struct saved_file *) xmalloc (sizeof *saved);
 
   saved->f_in = f_in;
   saved->file_name = file_name;
@@ -98,7 +98,7 @@ input_file_push (void)
 void
 input_file_pop (char *arg)
 {
-  struct saved_file *saved = (struct saved_file *) arg;
+  register struct saved_file *saved = (struct saved_file *) arg;
 
   input_file_end ();		/* Close out old file.  */
 
@@ -111,10 +111,8 @@ input_file_pop (char *arg)
   free (arg);
 }
 
-/* Open the specified file, "" means stdin.  Filename must not be null.  */
-
 void
-input_file_open (const char *filename,
+input_file_open (char *filename, /* "" means use stdin. Must not be 0.  */
 		 int pre)
 {
   int c;

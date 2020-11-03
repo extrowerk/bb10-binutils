@@ -1,3 +1,3 @@
 #name: Wide instruction rejected in non-Thumb2 cores.
-#skip: *-*-pe *-*-wince
-#error_output: thumb-w-bad.l
+#skip: *-*-*coff *-*-pe *-*-wince *-*-*aout* *-*-netbsd *-*-riscix*
+#error-output: thumb-w-bad.l

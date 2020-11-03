@@ -6,4 +6,3 @@ foo:
 
 	.intel_syntax noprefix
 	invpcid	edx,[eax]
-	invpcid	edx,oword ptr [eax]

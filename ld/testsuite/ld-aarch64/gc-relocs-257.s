@@ -1,10 +1,8 @@
 	.text
-	and	x0, x0, x0
-	and	x0, x0, #0x1
-	.xword  tempy2
-
-	.data
 	.word   tempy
+	.xword  tempy2
 	.hword  tempy3
 	.hword  tempy3+8
 
+	and	x0, x0, x0
+	and	x0, x0, #0x1

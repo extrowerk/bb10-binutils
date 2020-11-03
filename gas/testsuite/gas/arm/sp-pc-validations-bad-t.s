@@ -1,5 +1,5 @@
 .syntax unified
-@ Enable Thumb mode
+.arch armv7-a
 .thumb
 .macro it_test opcode operands:vararg
 itt eq

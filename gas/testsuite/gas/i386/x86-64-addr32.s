@@ -1,5 +1,4 @@
-	.text
-	.allow_index_reg
+.text
 	lea		symbol(%eax), %rax
 	lea		symbol(%r8d), %rax
 	lea		symbol(%eip), %rax
@@ -16,5 +15,3 @@
 	addr32 mov	%rax,0x600898
 	addr32 mov	%rax,0x800898
 	addr32 mov	%rbx,0x800898
-	mov		%eax, -0xccddef(,%eiz,)
-	mov		%eax, -0xccddef(,%eiz,2)

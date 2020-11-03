@@ -1,6 +1,6 @@
 #ld: -T empty-address-1.t
 #nm: -n
-#xfail: frv-*-*linux*
+#notarget: frv-*-*linux*
 #...
 0+0 T _start
 #...

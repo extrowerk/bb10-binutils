@@ -1,4 +1,4 @@
-#as: -a32 -mbig -mvle
+#as: -a32 -mvle
 #objdump: -dr -Mvle
 #name: VLE Simplified mnemonics 3
 

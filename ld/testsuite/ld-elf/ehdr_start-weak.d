@@ -1,10 +1,9 @@
 #source: ehdr_start.s
-#ld: -e _start -T ehdr_start-missing.t --no-dynamic-linker
+#ld: -e _start -T ehdr_start-missing.t
 #nm: -n
-#target: *-*-linux* *-*-gnu* *-*-nacl* arm*-*-uclinuxfdpiceabi-*-nto*
+#target: *-*-linux* *-*-gnu* *-*-nacl* *-*-nto*
 #xfail: frv-*-*
 
-#failif
 #...
-.* __ehdr_start
-#...
+\s+[wU] __ehdr_start
+#pass

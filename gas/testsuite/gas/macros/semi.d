@@ -1,6 +1,6 @@
 #objdump: -s -j .text
 #name: semi
-#notarget: m32c-*
+#not-target: m32c-*
 
 .*: .*
 

@@ -37,5 +37,5 @@ test_dot_req_and_unreq:
 	add FOO, FOO, FOO
 
 	# Check that a second attempt to alias foo, using a mixed case
-	# version of the name, will fail.
+	# verison of the name, will fail.
 	Foo .req r2

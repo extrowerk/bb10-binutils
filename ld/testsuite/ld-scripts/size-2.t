@@ -1,8 +1,8 @@
 PHDRS
 {
-  header PT_PHDR PHDRS ;
+  header PT_PHDR FILEHDR PHDRS ;
 	 
-  image PT_LOAD FLAGS (5) PHDRS;
+  image PT_LOAD FLAGS (5);
   tls PT_TLS FLAGS (4);
   
 }
@@ -18,5 +18,4 @@ SECTIONS
     LONG (SIZEOF (.tdata))
     LONG (SIZEOF (.tbss))
   } :image
-  /DISCARD/ : { *(.note.gnu.property) }
 }

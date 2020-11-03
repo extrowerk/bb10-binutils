@@ -1,8 +1,9 @@
 #objdump: -dr --prefix-addresses --show-raw-insn
 #name: SH2a PIC relocations
 #as: -isa=sh2a
+#skip: sh*-*-symbian*
 
-.*:     file format elf32-sh.*
+dump.o:     file format elf32-sh.*
 
 Disassembly of section .text:
 0x00000000 01 00 00 00 	movi20	#0,r1

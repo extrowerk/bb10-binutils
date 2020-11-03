@@ -1,4 +1,4 @@
-@ Test to ensure that a Thumb-2 B.W can branch to an ARM function.
+@ Test to ensure that a Thumb-2 B.W can branch to an ARM funtion.
 
 	.arch armv7-a
 	.global _start

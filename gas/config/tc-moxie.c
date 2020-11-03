@@ -1,5 +1,5 @@
 /* tc-moxie.c -- Assemble code for moxie
-   Copyright (C) 2009-2019 Free Software Foundation, Inc.
+   Copyright (C) 2009-2014 Free Software Foundation, Inc.
 
    This file is part of GAS, the GNU Assembler.
 
@@ -404,7 +404,7 @@ md_assemble (char *str)
 	iword += (a << 4);
       }
       break;
-    case MOXIE_F1_ABi2:
+    case MOXIE_F1_ABi4:
       iword = opcode->opcode << 8;
       while (ISSPACE (*op_end))
 	op_end++;
@@ -426,13 +426,13 @@ md_assemble (char *str)
 	op_end++;
 
 	op_end = parse_exp_save_ilp (op_end, &arg);
-	offset = frag_more (2);
+	offset = frag_more (4);
 	fix_new_exp (frag_now,
 		     (offset - frag_now->fr_literal),
-		     2,
+		     4,
 		     &arg,
 		     0,
-		     BFD_RELOC_16);
+		     BFD_RELOC_32);
 
 	if (*op_end != '(')
 	  {
@@ -458,7 +458,7 @@ md_assemble (char *str)
 	iword += (a << 4) + b;
       }
       break;
-    case MOXIE_F1_AiB2:
+    case MOXIE_F1_AiB4:
       iword = opcode->opcode << 8;
       while (ISSPACE (*op_end))
 	op_end++;
@@ -468,13 +468,13 @@ md_assemble (char *str)
 	int a, b;
 
 	op_end = parse_exp_save_ilp (op_end, &arg);
-	offset = frag_more (2);
+	offset = frag_more (4);
 	fix_new_exp (frag_now,
 		     (offset - frag_now->fr_literal),
-		     2,
+		     4,
 		     &arg,
 		     0,
-		     BFD_RELOC_16);
+		     BFD_RELOC_32);
 
 	if (*op_end != '(')
 	  {
@@ -535,19 +535,11 @@ md_assemble (char *str)
 		     BFD_RELOC_MOXIE_10_PCREL);
       }
       break;
-    case MOXIE_BAD:
-      iword = 0;
-      while (ISSPACE (*op_end))
-	op_end++;
-      if (*op_end != 0)
-	as_warn (_("extra stuff on line ignored"));
-      break;
     default:
       abort ();
     }
 
   md_number_to_chars (p, iword, 2);
-  dwarf2_emit_insn (2);
 
   while (ISSPACE (*op_end))
     op_end++;
@@ -564,7 +556,7 @@ md_assemble (char *str)
    of LITTLENUMS emitted is stored in *SIZEP .  An error message is
    returned, or NULL on OK.  */
 
-const char *
+char *
 md_atof (int type, char *litP, int *sizeP)
 {
   int prec;
@@ -620,17 +612,17 @@ size_t md_longopts_size = sizeof (md_longopts);
 const char *md_shortopts = "";
 
 int
-md_parse_option (int c ATTRIBUTE_UNUSED, const char *arg ATTRIBUTE_UNUSED)
+md_parse_option (int c ATTRIBUTE_UNUSED, char *arg ATTRIBUTE_UNUSED)
 {
   switch (c)
     {
-    case OPTION_EB:
-      target_big_endian = 1;
+    case OPTION_EB: 
+      target_big_endian = 1; 
       break;
-    case OPTION_EL:
+    case OPTION_EL: 
       target_big_endian = 0;
       break;
-    default:
+    default:        
       return 0;
     }
 
@@ -648,7 +640,7 @@ md_show_usage (FILE *stream ATTRIBUTE_UNUSED)
 /* Apply a fixup to the object file.  */
 
 void
-md_apply_fix (fixS *fixP ATTRIBUTE_UNUSED,
+md_apply_fix (fixS *fixP ATTRIBUTE_UNUSED, 
 	      valueT * valP ATTRIBUTE_UNUSED, segT seg ATTRIBUTE_UNUSED)
 {
   char *buf = fixP->fx_where + fixP->fx_frag->fr_literal;
@@ -779,8 +771,9 @@ tc_gen_reloc (asection *section ATTRIBUTE_UNUSED, fixS *fixP)
       return 0;
     }
 
-  relP = XNEW (arelent);
-  relP->sym_ptr_ptr = XNEW (asymbol *);
+  relP = xmalloc (sizeof (arelent));
+  gas_assert (relP != 0);
+  relP->sym_ptr_ptr = xmalloc (sizeof (asymbol *));
   *relP->sym_ptr_ptr = symbol_get_bfdsym (fixP->fx_addsy);
   relP->address = fixP->fx_frag->fr_address + fixP->fx_where;
 

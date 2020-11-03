@@ -1,5 +1,5 @@
 # This shell script emits a C file. -*- C -*-
-#   Copyright (C) 1991-2019 Free Software Foundation, Inc.
+#   Copyright (C) 1991-2014 Free Software Foundation, Inc.
 #
 # This file is part of the GNU Binutils.
 #
@@ -50,16 +50,16 @@ static bfd_signed_vma group_size = 1;
 static void
 hppaelf_after_parse (void)
 {
-  if (bfd_link_relocatable (&link_info))
+  if (link_info.relocatable)
     lang_add_unique (".text");
 
   /* Enable this once we split millicode stuff from libgcc:
      lang_add_input_file ("milli",
-			  lang_input_file_is_l_enum,
+     			  lang_input_file_is_l_enum,
 			  NULL);
   */
 
-  gld${EMULATION_NAME}_after_parse ();
+  after_parse_default ();
 }
 
 /* This is called before the input files are opened.  We create a new
@@ -82,13 +82,12 @@ hppaelf_create_output_section_statements (void)
 			      bfd_get_arch (link_info.output_bfd),
 			      bfd_get_mach (link_info.output_bfd)))
     {
-      einfo (_("%F%P: can not create BFD: %E\n"));
+      einfo ("%X%P: can not create BFD %E\n");
       return;
     }
 
   stub_file->the_bfd->flags |= BFD_LINKER_CREATED;
   ldlang_add_file (stub_file);
-  elf32_hppa_init_stub_bfd (stub_file->the_bfd, &link_info);
 }
 
 
@@ -202,7 +201,7 @@ hppaelf_add_stub_section (const char *stub_sec_name, asection *input_section)
     return stub_sec;
 
  err_ret:
-  einfo (_("%X%P: can not make stub section: %E\n"));
+  einfo ("%X%P: can not make stub section: %E\n");
   return NULL;
 }
 
@@ -252,7 +251,7 @@ gld${EMULATION_NAME}_after_allocation (void)
   ret = bfd_elf_discard_info (link_info.output_bfd, &link_info);
   if (ret < 0)
     {
-      einfo (_("%X%P: .eh_frame/.stab edit: %E\n"));
+      einfo ("%X%P: .eh_frame/.stab edit: %E\n");
       return;
     }
   else if (ret > 0)
@@ -260,14 +259,14 @@ gld${EMULATION_NAME}_after_allocation (void)
 
   /* If generating a relocatable output file, then we don't
      have to examine the relocs.  */
-  if (stub_file != NULL && !bfd_link_relocatable (&link_info))
+  if (stub_file != NULL && !link_info.relocatable)
     {
       ret = elf32_hppa_setup_section_lists (link_info.output_bfd, &link_info);
       if (ret != 0)
 	{
 	  if (ret < 0)
 	    {
-	      einfo (_("%X%P: can not size stub section: %E\n"));
+	      einfo ("%X%P: can not size stub section: %E\n");
 	      return;
 	    }
 
@@ -282,7 +281,7 @@ gld${EMULATION_NAME}_after_allocation (void)
 				       &hppaelf_add_stub_section,
 				       &hppaelf_layout_sections_again))
 	    {
-	      einfo (_("%X%P: can not size stub section: %E\n"));
+	      einfo ("%X%P: can not size stub section: %E\n");
 	      return;
 	    }
 	}
@@ -291,12 +290,12 @@ gld${EMULATION_NAME}_after_allocation (void)
   if (need_laying_out != -1)
     gld${EMULATION_NAME}_map_segments (need_laying_out);
 
-  if (!bfd_link_relocatable (&link_info))
+  if (! link_info.relocatable)
     {
       /* Set the global data pointer.  */
       if (! elf32_hppa_set_gp (link_info.output_bfd, &link_info))
 	{
-	  einfo (_("%X%P: can not set gp\n"));
+	  einfo ("%X%P: can not set gp\n");
 	  return;
 	}
 
@@ -304,7 +303,7 @@ gld${EMULATION_NAME}_after_allocation (void)
       if (stub_file != NULL && stub_file->the_bfd->sections != NULL)
 	{
 	  if (! elf32_hppa_build_stubs (&link_info))
-	    einfo (_("%X%P: can not build stubs: %E\n"));
+	    einfo ("%X%P: can not build stubs: %E\n");
 	}
     }
 }
@@ -370,9 +369,9 @@ PARSE_AND_LIST_ARGS_CASES='
     case OPTION_STUBGROUP_SIZE:
       {
 	const char *end;
-	group_size = bfd_scan_vma (optarg, &end, 0);
-	if (*end)
-	  einfo (_("%F%P: invalid number `%s'\''\n"), optarg);
+        group_size = bfd_scan_vma (optarg, &end, 0);
+        if (*end)
+	  einfo (_("%P%F: invalid number `%s'\''\n"), optarg);
       }
       break;
 '

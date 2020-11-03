@@ -1,6 +1,6 @@
 #source: expdyn1.s
 #as: --no-underscore --em=criself
-#ld: -m crislinux -export-dynamic tmpdir/libdso-1.so --hash-style=sysv
+#ld: -m crislinux -export-dynamic tmpdir/libdso-1.so
 #objdump: -T
 
 .*:     file format elf32-cris

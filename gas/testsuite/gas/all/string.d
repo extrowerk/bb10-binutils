@@ -1,6 +1,5 @@
 #objdump : -s -j .data -j "\$DATA\$"
 #name : .strings tests
-#skip: tic4x-*
 
 .*: .*
 

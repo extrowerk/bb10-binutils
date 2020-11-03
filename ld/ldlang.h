@@ -1,5 +1,5 @@
 /* ldlang.h - linker command language support
-   Copyright (C) 1991-2019 Free Software Foundation, Inc.
+   Copyright (C) 1991-2014 Free Software Foundation, Inc.
 
    This file is part of the GNU Binutils.
 
@@ -55,10 +55,8 @@ typedef struct memory_region_struct
 {
   lang_memory_region_name name_list;
   struct memory_region_struct *next;
-  union etree_union *origin_exp;
   bfd_vma origin;
   bfd_size_type length;
-  union etree_union *length_exp;
   bfd_vma current;
   union lang_statement_union *last_os;
   flagword flags;
@@ -88,7 +86,6 @@ enum statement_enum
 
 typedef struct lang_statement_header_struct
 {
-  /* Next pointer for statement_list statement list.  */
   union lang_statement_union *next;
   enum statement_enum type;
 } lang_statement_header_type;
@@ -144,8 +141,6 @@ typedef struct lang_output_section_statement_struct
   fill_type *fill;
   union etree_union *addr_tree;
   union etree_union *load_base;
-  union etree_union *section_alignment;
-  union etree_union *subsection_alignment;
 
   /* If non-null, an expression to evaluate after setting the section's
      size.  The expression is evaluated inside REGION (above) with '.'
@@ -156,6 +151,8 @@ typedef struct lang_output_section_statement_struct
   lang_output_section_phdr_list *phdrs;
 
   unsigned int block_value;
+  int subsection_alignment;	/* Alignment of components.  */
+  int section_alignment;	/* Alignment of start of section.  */
   int constraint;
   flagword flags;
   enum section_type sectype;
@@ -284,9 +281,6 @@ struct lang_input_statement_flags
 
   /* Set if the file was claimed from an archive.  */
   unsigned int claim_archive : 1;
-
-  /* Set if added by the lto plugin add_input_file callback.  */
-  unsigned int lto_output : 1;
 #endif /* ENABLE_PLUGINS */
 
   /* Head of list of pushed flags.  */
@@ -307,10 +301,11 @@ typedef struct lang_input_statement_struct
 
   struct flag_info *section_flag_list;
 
-  /* Next pointer for file_chain statement list.  */
+  /* Point to the next file - whatever it is, wanders up and down
+     archives */
   union lang_statement_union *next;
 
-  /* Next pointer for input_file_chain statement list.  */
+  /* Point to the next file, but skips archive contents.  */
   union lang_statement_union *next_real_file;
 
   const char *target;
@@ -372,7 +367,6 @@ struct lang_wild_statement_struct
   struct wildcard_list *section_list;
   bfd_boolean keep_sections;
   lang_statement_list_type children;
-  struct name_list *exclude_name_list;
 
   walk_wild_section_handler_t walk_wild_section_handler;
   struct wildcard_list *handler_data[4];
@@ -465,7 +459,6 @@ struct lang_nocrossrefs
 {
   struct lang_nocrossrefs *next;
   lang_nocrossref_type *list;
-  bfd_boolean onlyfirst;
 };
 
 /* This structure is used to hold a list of input section names which
@@ -582,9 +575,9 @@ extern asection *section_for_dot
 
 #define LANG_FOR_EACH_INPUT_STATEMENT(statement)			\
   lang_input_statement_type *statement;					\
-  for (statement = &file_chain.head->input_statement;			\
-       statement != NULL;						\
-       statement = &statement->next->input_statement)
+  for (statement = (lang_input_statement_type *) file_chain.head;	\
+       statement != (lang_input_statement_type *) NULL;			\
+       statement = (lang_input_statement_type *) statement->next)	\
 
 #define lang_output_section_find(NAME) \
   lang_output_section_statement_lookup (NAME, 0, FALSE)
@@ -594,7 +587,7 @@ extern void lang_process
 extern void ldlang_add_file
   (lang_input_statement_type *);
 extern lang_output_section_statement_type *lang_output_section_find_by_flags
-  (const asection *, flagword, lang_output_section_statement_type **,
+  (const asection *, lang_output_section_statement_type **,
    lang_match_sec_type_func);
 extern lang_output_section_statement_type *lang_insert_orphan
   (asection *, const char *, int, lang_output_section_statement_type *,
@@ -611,8 +604,6 @@ extern lang_output_section_statement_type *next_matching_output_section_statemen
   (lang_output_section_statement_type *, int);
 extern void ldlang_add_undef
   (const char *const, bfd_boolean);
-extern void ldlang_add_require_defined
-  (const char *const);
 extern void lang_add_output_format
   (const char *, const char *, const char *, int);
 extern void lang_list_init
@@ -656,8 +647,6 @@ extern void lang_new_phdr
    etree_type *);
 extern void lang_add_nocrossref
   (lang_nocrossref_type *);
-extern void lang_add_nocrossref_to
-  (lang_nocrossref_type *);
 extern void lang_enter_overlay
   (etree_type *, etree_type *);
 extern void lang_enter_overlay_section
@@ -693,11 +682,5 @@ ldlang_override_segment_assignment
 
 extern void
 lang_ld_feature (char *);
-
-extern void
-lang_print_memory_usage (void);
-
-extern void
-lang_add_gc_name (const char *);
 
 #endif

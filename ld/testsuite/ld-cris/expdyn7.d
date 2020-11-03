@@ -2,7 +2,7 @@
 #source: expdref1.s --pic
 #source: comref1.s --pic
 #as: --no-underscore --em=criself
-#ld: -m crislinux --export-dynamic tmpdir/libdso-1.so --hash-style=sysv
+#ld: -m crislinux --export-dynamic tmpdir/libdso-1.so
 #objdump: -s -j .got
 
 # Like expdyn5.d, referencing COMMON symbols.

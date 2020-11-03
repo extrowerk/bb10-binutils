@@ -2,9 +2,7 @@
 #name: align
 # The RX port will always replace zeros in any aligned area with NOPs,
 # even if the user requested that they filled with zeros.
-# RISC-V handles alignment via relaxation and therefor won't have object files
-# with the expected alignment.
-#notarget: m32c-* riscv*-* rx-*
+#not-target: m32c-* rx-*
 
 # Test the alignment pseudo-op.
 

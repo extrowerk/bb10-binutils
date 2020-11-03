@@ -1,5 +1,5 @@
 #source: vgather-check.s
-#warning_output: vgather-check-warn.e
+#stderr: vgather-check-warn.e
 #objdump: -dw
 #name: i386 vgather check (warning)
 
@@ -30,6 +30,4 @@ Disassembly of section .text:
 [ 	]+[a-f0-9]+:[ 	]+62 f2 7d 49 91 b4 f5 7b 00 00 00[ 	]+vpgatherqd 0x7b\(%ebp,%zmm6,8\),%ymm6\{%k1\}
 [ 	]+[a-f0-9]+:[ 	]+62 f2 fd 49 91 b4 fd 7b 00 00 00[ 	]+vpgatherqq 0x7b\(%ebp,%zmm7,8\),%zmm6\{%k1\}
 [ 	]+[a-f0-9]+:[ 	]+62 f2 fd 49 91 b4 f5 7b 00 00 00[ 	]+vpgatherqq 0x7b\(%ebp,%zmm6,8\),%zmm6\{%k1\}
-[ 	]+[a-f0-9]+:[ 	]+62 f2 7d 29 91 b4 fd 7b 00 00 00[ 	]+vpgatherqd 0x7b\(%ebp,%ymm7,8\),%xmm6\{%k1\}
-[ 	]+[a-f0-9]+:[ 	]+62 f2 7d 29 91 b4 f5 7b 00 00 00[ 	]+vpgatherqd 0x7b\(%ebp,%ymm6,8\),%xmm6\{%k1\}
 #pass

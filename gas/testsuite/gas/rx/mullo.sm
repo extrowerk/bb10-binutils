@@ -1,3 +1,1 @@
 	mullo	{reg},{reg}
-	mullo	{reg},{reg},a0
-	mullo	{reg},{reg},a1

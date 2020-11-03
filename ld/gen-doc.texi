@@ -1,5 +1,5 @@
-@c Copyright (C) 2012-2019 Free Software Foundation, Inc.
-@c For copying conditions, see the file ld.texi.
+@c Copyright (C) 2012-2014 Free Software Foundation, Inc.
+@c For copying conditions, see the file ld.texinfo.
 
 @c ------------------------------ CONFIGURATION VARS:
 @c 1. Inclusiveness of this manual
@@ -8,7 +8,6 @@
 @c 2. Specific target machines
 @set ARM
 @set C6X
-@set CSKY
 @set H8300
 @set HPPA
 @set I960
@@ -22,7 +21,6 @@
 @set POWERPC
 @set POWERPC64
 @set Renesas
-@set S/390
 @set SPU
 @set TICOFF
 @set WIN32

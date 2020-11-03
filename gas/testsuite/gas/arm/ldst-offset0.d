@@ -1,7 +1,6 @@
 #objdump: -dr --prefix-addresses --show-raw-insn
 #name: ARM load/store with 0 offset
 #as:
-#skip: *-*-pe *-wince-*
 
 # Test the standard ARM instructions:
 

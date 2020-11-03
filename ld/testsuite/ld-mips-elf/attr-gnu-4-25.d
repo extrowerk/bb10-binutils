@@ -2,7 +2,7 @@
 #source: attr-gnu-4-5.s
 #ld: -r
 #readelf: -A
-#warning: warning: .* uses -msingle-float \(set by .*\), .* uses -mfpxx
+#warning: Warning: .* uses -msingle-float \(set by .*\), .* uses -mfpxx
 
 Attribute Section: gnu
 File Attributes

@@ -13,8 +13,5 @@ main:
 	j	doit
 	nop
 
-	j	doit
-	nop
-
 	.end	main
 	.size	main, .-main

@@ -1,5 +1,5 @@
 /* Disassemble SH instructions.
-   Copyright (C) 1993-2019 Free Software Foundation, Inc.
+   Copyright (C) 1993-2014 Free Software Foundation, Inc.
 
    This file is part of the GNU opcodes library.
 
@@ -25,7 +25,11 @@
 #define DEFINE_TABLE
 
 #include "sh-opc.h"
-#include "disassemble.h"
+#include "dis-asm.h"
+
+#ifdef ARCH_all
+#define INCLUDE_SHMEDIA
+#endif
 
 static void
 print_movxy (const sh_opcode_info *op,
@@ -148,7 +152,7 @@ print_insn_ddt (int insn, struct disassemble_info *info)
 	while (op->nibbles[2] != (unsigned) ((insn >> 4) & 3)
 	       || op->nibbles[3] != (unsigned) (insn & 0xf))
 	  op++;
-
+	
 	print_movxy (op,
 		     (4 * ((insn & (is_movy ? 0x200 : 0x100)) == 0)
 		      + 2 * is_movy
@@ -399,6 +403,16 @@ print_insn_sh (bfd_vma memaddr, struct disassemble_info *info)
       if (info->symbols
 	  && bfd_asymbol_flavour(*info->symbols) == bfd_target_coff_flavour)
 	target_arch = arch_sh4;
+      break;
+    case bfd_mach_sh5:
+#ifdef INCLUDE_SHMEDIA
+      status = print_insn_sh64 (memaddr, info);
+      if (status != -2)
+	return status;
+#endif
+      /* When we get here for sh64, it's because we want to disassemble
+	 SHcompact, i.e. arch_sh4.  */
+      target_arch = arch_sh4;
       break;
     default:
       target_arch = sh_get_arch_from_bfd_mach (info->mach);
@@ -822,7 +836,6 @@ print_insn_sh (bfd_vma memaddr, struct disassemble_info *info)
 		  fprintf_fn (stream, "xd%d", rn & ~1);
 		  break;
 		}
-	      /* Fall through.  */
 	    case D_REG_N:
 	      fprintf_fn (stream, "dr%d", rn);
 	      break;
@@ -832,7 +845,6 @@ print_insn_sh (bfd_vma memaddr, struct disassemble_info *info)
 		  fprintf_fn (stream, "xd%d", rm & ~1);
 		  break;
 		}
-	      /* Fall through.  */
 	    case D_REG_M:
 	      fprintf_fn (stream, "dr%d", rm);
 	      break;
@@ -893,8 +905,6 @@ print_insn_sh (bfd_vma memaddr, struct disassemble_info *info)
 	    size = 2;
 	  else
 	    size = 4;
-	  /* Not reading an instruction - disable stop_vma.  */
-	  info->stop_vma = 0;
 	  status = info->read_memory_func (disp_pc_addr, bytes, size, info);
 	  if (status == 0)
 	    {

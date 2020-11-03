@@ -1,5 +1,5 @@
 /* elfcomm.c -- common code for ELF format file.
-   Copyright (C) 2010-2019 Free Software Foundation, Inc.
+   Copyright (C) 2010-2014 Free Software Foundation, Inc.
 
    Originally developed by Eric Youngdale <eric@andante.jic.com>
    Modifications by Nick Clifton <nickc@redhat.com>
@@ -125,10 +125,10 @@ byte_put_big_endian (unsigned char * field, elf_vma value, int size)
     }
 }
 
-elf_vma (*byte_get) (const unsigned char *, int);
+elf_vma (*byte_get) (unsigned char *, int);
 
 elf_vma
-byte_get_little_endian (const unsigned char *field, int size)
+byte_get_little_endian (unsigned char *field, int size)
 {
   switch (size)
     {
@@ -165,7 +165,6 @@ byte_get_little_endian (const unsigned char *field, int size)
 	  |    (((unsigned long) (field[1])) << 8)
 	  |    (((unsigned long) (field[2])) << 16)
 	  |    (((unsigned long) (field[3])) << 24);
-      /* Fall through.  */
 
     case 6:
       if (sizeof (elf_vma) == 8)
@@ -183,7 +182,6 @@ byte_get_little_endian (const unsigned char *field, int size)
 	  |    (((unsigned long) (field[1])) << 8)
 	  |    (((unsigned long) (field[2])) << 16)
 	  |    (((unsigned long) (field[3])) << 24);
-      /* Fall through.  */
 
     case 7:
       if (sizeof (elf_vma) == 8)
@@ -202,7 +200,6 @@ byte_get_little_endian (const unsigned char *field, int size)
 	  |    (((unsigned long) (field[1])) << 8)
 	  |    (((unsigned long) (field[2])) << 16)
 	  |    (((unsigned long) (field[3])) << 24);
-      /* Fall through.  */
 
     case 8:
       if (sizeof (elf_vma) == 8)
@@ -222,7 +219,6 @@ byte_get_little_endian (const unsigned char *field, int size)
 	  |    (((unsigned long) (field[1])) << 8)
 	  |    (((unsigned long) (field[2])) << 16)
 	  |    (((unsigned long) (field[3])) << 24);
-      /* Fall through.  */
 
     default:
       error (_("Unhandled data length: %d\n"), size);
@@ -231,7 +227,7 @@ byte_get_little_endian (const unsigned char *field, int size)
 }
 
 elf_vma
-byte_get_big_endian (const unsigned char *field, int size)
+byte_get_big_endian (unsigned char *field, int size)
 {
   switch (size)
     {
@@ -269,7 +265,6 @@ byte_get_big_endian (const unsigned char *field, int size)
 	    |   (((unsigned long) (field[1])) << 16)
 	    |   (((unsigned long) (field[0])) << 24);
 	}
-      /* Fall through.  */
 
     case 6:
       if (sizeof (elf_vma) == 8)
@@ -289,7 +284,6 @@ byte_get_big_endian (const unsigned char *field, int size)
 	    |   (((unsigned long) (field[1])) << 16)
 	    |   (((unsigned long) (field[0])) << 24);
 	}
-      /* Fall through.  */
 
     case 7:
       if (sizeof (elf_vma) == 8)
@@ -310,7 +304,6 @@ byte_get_big_endian (const unsigned char *field, int size)
 	    |   (((unsigned long) (field[1])) << 16)
 	    |   (((unsigned long) (field[0])) << 24);
 	}
-      /* Fall through.  */
 
     case 8:
       if (sizeof (elf_vma) == 8)
@@ -332,7 +325,6 @@ byte_get_big_endian (const unsigned char *field, int size)
 	    |   (((unsigned long) (field[1])) << 16)
 	    |   (((unsigned long) (field[0])) << 24);
 	}
-      /* Fall through.  */
 
     default:
       error (_("Unhandled data length: %d\n"), size);
@@ -341,7 +333,7 @@ byte_get_big_endian (const unsigned char *field, int size)
 }
 
 elf_vma
-byte_get_signed (const unsigned char *field, int size)
+byte_get_signed (unsigned char *field, int size)
 {
   elf_vma x = byte_get (field, size);
 
@@ -373,7 +365,7 @@ byte_get_signed (const unsigned char *field, int size)
    of an 8-byte value separately.  */
 
 void
-byte_get_64 (const unsigned char *field, elf_vma *high, elf_vma *low)
+byte_get_64 (unsigned char *field, elf_vma *high, elf_vma *low)
 {
   if (byte_get == byte_get_big_endian)
     {
@@ -466,12 +458,8 @@ process_archive_index_and_symbols (struct archive_info *  arch,
 {
   size_t got;
   unsigned long size;
-  char fmag_save;
 
-  fmag_save = arch->arhdr.ar_fmag[0];
-  arch->arhdr.ar_fmag[0] = 0;
   size = strtoul (arch->arhdr.ar_size, NULL, 10);
-  arch->arhdr.ar_fmag[0] = fmag_save;
   /* PR 17531: file: 912bd7de.  */
   if ((signed long) size < 0)
     {
@@ -622,7 +610,7 @@ setup_archive (struct archive_info *arch, const char *file_name,
   arch->longnames_size = 0;
   arch->nested_member_origin = 0;
   arch->is_thin_archive = is_thin_archive;
-  arch->uses_64bit_indices = FALSE;
+  arch->uses_64bit_indicies = FALSE;
   arch->next_arhdr_offset = SARMAG;
 
   /* Read the first archive member header.  */
@@ -649,7 +637,7 @@ setup_archive (struct archive_info *arch, const char *file_name,
     }
   else if (const_strneq (arch->arhdr.ar_name, "/SYM64/         "))
     {
-      arch->uses_64bit_indices = TRUE;
+      arch->uses_64bit_indicies = TRUE;
       if (! process_archive_index_and_symbols (arch, 8, read_symbols))
 	return 1;
     }
@@ -659,10 +647,7 @@ setup_archive (struct archive_info *arch, const char *file_name,
   if (const_strneq (arch->arhdr.ar_name, "//              "))
     {
       /* This is the archive string table holding long member names.  */
-      char fmag_save = arch->arhdr.ar_fmag[0];
-      arch->arhdr.ar_fmag[0] = 0;
       arch->longnames_size = strtoul (arch->arhdr.ar_size, NULL, 10);
-      arch->arhdr.ar_fmag[0] = fmag_save;
       /* PR 17531: file: 01068045.  */
       if (arch->longnames_size < 8)
 	{
@@ -765,7 +750,6 @@ get_archive_member_name (struct archive_info *arch,
       char *endp;
       char *member_file_name;
       char *member_name;
-      char fmag_save;
 
       if (arch->longnames == NULL || arch->longnames_size == 0)
 	{
@@ -774,12 +758,9 @@ get_archive_member_name (struct archive_info *arch,
 	}
 
       arch->nested_member_origin = 0;
-      fmag_save = arch->arhdr.ar_fmag[0];
-      arch->arhdr.ar_fmag[0] = 0;
       k = j = strtoul (arch->arhdr.ar_name + 1, &endp, 10);
       if (arch->is_thin_archive && endp != NULL && * endp == ':')
         arch->nested_member_origin = strtoul (endp + 1, NULL, 10);
-      arch->arhdr.ar_fmag[0] = fmag_save;
 
       if (j > arch->longnames_size)
 	{
@@ -918,7 +899,7 @@ make_qualified_name (struct archive_info * arch,
 		  nested_arch->file_name, member_name);
       else
 	snprintf (name, len, "%s[%s(%s)]", arch->file_name,
-		  error_name, member_name);
+		  error_name, member_name);	
     }
   else if (arch->is_thin_archive)
     snprintf (name, len, "%s[%s]", arch->file_name, member_name);

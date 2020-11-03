@@ -2,7 +2,7 @@
 #name: VFMA decoding
 #as: -mcpu=arm7m
 # This test is only valid on ELF based ports.
-#notarget: *-*-pe *-*-wince
+#not-target: *-*-*coff *-*-pe *-*-wince *-*-*aout* *-*-netbsd *-*-riscix*
 
 # Test VFMA instruction disassembly
 

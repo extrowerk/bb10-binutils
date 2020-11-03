@@ -10,8 +10,6 @@ _start:
  cvttpd2pi	%xmm4,%mm3
  cvttps2pi	%xmm4,%mm3
  fisttp (%eax)
- fisttps (%eax)
- fisttpl (%eax)
  fisttpll (%eax)
  lfence
  maskmovq	%mm7,%mm0

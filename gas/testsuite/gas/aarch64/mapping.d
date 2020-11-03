@@ -1,7 +1,7 @@
 #objdump: --syms --special-syms
 #name: AArch64 Mapping Symbols
 # This test is only valid on ELF based ports.
-#notarget: *-*-pe *-*-wince
+#not-target: *-*-*coff *-*-pe *-*-wince *-*-*aout* *-*-netbsd *-*-riscix*
 
 # Test the generation of AArch64 ELF Mapping Symbols
 

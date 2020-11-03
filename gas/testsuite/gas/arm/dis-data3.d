@@ -1,5 +1,5 @@
 # name: Data disassembler test (with mapping symbol)
-# skip: *-*-pe *-*-wince
+# skip: *-*-*coff *-*-pe *-*-wince *-*-*aout* *-*-netbsd *-*-riscix*
 # objdump: -dr --prefix-addresses --show-raw-insn
 
 .*: +file format .*arm.*

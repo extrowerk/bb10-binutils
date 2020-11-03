@@ -1,2 +1,1 @@
 	stnz	#{imm},{reg}
-	stnz	{reg},{reg}

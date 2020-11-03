@@ -2,6 +2,6 @@
 	.globl bar
 	.type	bar, @function
 bar:
-	jmp	foo@PLT
+	jmp	foo
 	.size	bar, .-bar
 	.hidden	foo

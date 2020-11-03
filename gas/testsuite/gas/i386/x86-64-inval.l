@@ -109,8 +109,6 @@
 .*:115: Error: .*
 .*:116: Error: .*
 .*:117: Error: .*
-.*:118: Error: .*
-.*:121: Error: .*
 GAS LISTING .*
 
 
@@ -237,7 +235,3 @@ GAS LISTING .*
 [ 	]*115[ 	]+jmpd \[r8\]	\# 32-bit data size not allowed
 [ 	]*116[ 	]+jmpd \[rax\]	\# 32-bit data size not allowed
 [ 	]*117[ 	]+jmpq \[ax\]	\# no 16-bit addressing
-[ 	]*[1-9][0-9]*[ 	]+mov eax,\[rax\+0x876543210\] \# out of range displacement
-[ 	]*[1-9][0-9]*[ 	]+
-[ 	]*[1-9][0-9]*[ 	]+\.att_syntax prefix
-[ 	]*[1-9][0-9]*[ 	]+movsd \(%rsi\), %ss:\(%rdi\), %ss:\(%rax\)

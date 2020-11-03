@@ -1,3 +1,1 @@
 	maclo	{reg},{reg}
-	maclo	{reg},{reg},a0
-	maclo	{reg},{reg},a1

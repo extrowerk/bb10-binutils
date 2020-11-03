@@ -1,5 +1,5 @@
 /* tc-tic4x.c -- Assemble for the Texas Instruments TMS320C[34]x.
-   Copyright (C) 1997-2019 Free Software Foundation, Inc.
+   Copyright (C) 1997-2014 Free Software Foundation, Inc.
 
    Contributed by Michael P. Hayes (m.hayes@elec.canterbury.ac.nz)
 
@@ -17,12 +17,12 @@
 
    You should have received a copy of the GNU General Public License
    along with GAS; see the file COPYING.  If not, write to
-   the Free Software Foundation, 51 Franklin Street - Fifth Floor,
+   the Free Software Foundation, 51 Franklin Street - Fifth Floor, 
    Boston, MA 02110-1301, USA.  */
 /*
   TODOs:
   ------
-
+  
   o .align cannot handle fill-data-width larger than 0xFF/8-bits. It
     should be possible to define a 32-bits pattern.
 
@@ -124,8 +124,7 @@ typedef struct tic4x_insn
     unsigned int nchars;	/* This is always 4 for the C30.  */
     unsigned long opcode;	/* Opcode number.  */
     expressionS exp;		/* Expression required for relocation.  */
-    /* Relocation type required.  */
-    bfd_reloc_code_real_type reloc;
+    int reloc;			/* Relocation type required.  */
     int pcrel;			/* True if relocation PC relative.  */
     char *pname;		/* Name of instruction in parallel.  */
     unsigned int num_operands;	/* Number of operands in total.  */
@@ -196,10 +195,10 @@ const char comment_chars[] = ";";
 
 /* This array holds the chars that only start a comment at the beginning of
    a line.  If the line seems to have the form '# 123 filename'
-   .line and .file directives will appear in the pre-processed output.
+   .line and .file directives will appear in the pre-processed output. 
    Note that input_file.c hand checks for '#' at the beginning of the
    first line of the input file.  This is because the compiler outputs
-   #NO_APP at the beginning of its output.
+   #NO_APP at the beginning of its output. 
    Also note that comments like this one will always work.  */
 const char line_comment_chars[] = "#*";
 
@@ -223,7 +222,7 @@ const char FLT_CHARS[] = "fFilsS";
 extern FLONUM_TYPE generic_floating_point_number;
 
 /* Precision in LittleNums.  */
-#define MAX_PRECISION (4)       /* It's a bit overkill for us, but the code
+#define MAX_PRECISION (4)       /* Its a bit overkill for us, but the code
                                    requires it... */
 #define S_PRECISION (1)		/* Short float constants 16-bit.  */
 #define F_PRECISION (2)		/* Float and double types 32-bit.  */
@@ -251,7 +250,7 @@ tic4x_gen_to_words (FLONUM_TYPE flonum, LITTLENUM_TYPE *words, int precision)
      The code in this function is altered slightly to support floats
      with 31-bits mantissas, thus the documentation below may be a
      little bit inaccurate.
-
+     
      By Michael P. Hayes <m.hayes@elec.canterbury.ac.nz>
      Here is how a generic floating point number is stored using
      flonums (an extension of bignums) where p is a pointer to an
@@ -399,7 +398,7 @@ tic4x_gen_to_words (FLONUM_TYPE flonum, LITTLENUM_TYPE *words, int precision)
       /* +INF:  Replace with maximum float.  */
       if (precision == S_PRECISION)
 	words[0] = 0x77ff;
-      else
+      else 
 	{
 	  words[0] = 0x7f7f;
 	  words[1] = 0xffff;
@@ -416,7 +415,7 @@ tic4x_gen_to_words (FLONUM_TYPE flonum, LITTLENUM_TYPE *words, int precision)
       /* -INF:  Replace with maximum float.  */
       if (precision == S_PRECISION)
 	words[0] = 0x7800;
-      else
+      else 
         words[0] = 0x7f80;
       if (precision == E_PRECISION)
         words[2] = 0x8000;
@@ -618,8 +617,8 @@ tic4x_atof (char *str, char what_kind, LITTLENUM_TYPE *words)
   return return_value;
 }
 
-static void
-tic4x_insert_reg (const char *regname, int regnum)
+static void 
+tic4x_insert_reg (char *regname, int regnum)
 {
   char buf[32];
   int i;
@@ -634,8 +633,8 @@ tic4x_insert_reg (const char *regname, int regnum)
 				   &zero_address_frag));
 }
 
-static void
-tic4x_insert_sym (const char *symname, int value)
+static void 
+tic4x_insert_sym (char *symname, int value)
 {
   symbolS *symbolP;
 
@@ -673,7 +672,7 @@ tic4x_expression_abs (char *str, offsetT *value)
   return s;
 }
 
-static void
+static void 
 tic4x_emit_char (char c, int b)
 {
   expressionS exp;
@@ -683,7 +682,7 @@ tic4x_emit_char (char c, int b)
   emit_expr (&exp, b);
 }
 
-static void
+static void 
 tic4x_seg_alloc (char *name ATTRIBUTE_UNUSED,
 		 segT seg ATTRIBUTE_UNUSED,
 		 int size,
@@ -708,12 +707,13 @@ tic4x_seg_alloc (char *name ATTRIBUTE_UNUSED,
 }
 
 /* .asg ["]character-string["], symbol */
-static void
+static void 
 tic4x_asg (int x ATTRIBUTE_UNUSED)
 {
   char c;
   char *name;
   char *str;
+  char *tmp;
 
   SKIP_WHITESPACE ();
   str = input_line_pointer;
@@ -727,19 +727,24 @@ tic4x_asg (int x ATTRIBUTE_UNUSED)
       return;
     }
   *input_line_pointer++ = '\0';
-  c = get_symbol_name (&name);	/* Get terminator.  */
-  str = xstrdup (str);
-  name = xstrdup (name);
+  name = input_line_pointer;
+  c = get_symbol_end ();	/* Get terminator.  */
+  tmp = xmalloc (strlen (str) + 1);
+  strcpy (tmp, str);
+  str = tmp;
+  tmp = xmalloc (strlen (name) + 1);
+  strcpy (tmp, name);
+  name = tmp;
   if (hash_find (tic4x_asg_hash, name))
     hash_replace (tic4x_asg_hash, name, (void *) str);
   else
     hash_insert (tic4x_asg_hash, name, (void *) str);
-  (void) restore_line_pointer (c);
+  *input_line_pointer = c;
   demand_empty_rest_of_line ();
 }
 
 /* .bss symbol, size  */
-static void
+static void 
 tic4x_bss (int x ATTRIBUTE_UNUSED)
 {
   char c;
@@ -754,9 +759,8 @@ tic4x_bss (int x ATTRIBUTE_UNUSED)
   current_subseg = now_subseg;	/* Save current subseg.  */
 
   SKIP_WHITESPACE ();
-  c = get_symbol_name (&name);	/* Get terminator.  */
-  if (c == '"')
-    c = * ++ input_line_pointer;
+  name = input_line_pointer;
+  c = get_symbol_end ();	/* Get terminator.  */
   if (c != ',')
     {
       as_bad (_(".bss size argument missing\n"));
@@ -803,10 +807,11 @@ tic4x_globl (int ignore ATTRIBUTE_UNUSED)
 
   do
     {
-      c = get_symbol_name (&name);
+      name = input_line_pointer;
+      c = get_symbol_end ();
       symbolP = symbol_find_or_make (name);
       *input_line_pointer = c;
-      SKIP_WHITESPACE_AFTER_NAME ();
+      SKIP_WHITESPACE ();
       S_SET_STORAGE_CLASS (symbolP, C_EXT);
       S_SET_EXTERNAL (symbolP);
       if (c == ',')
@@ -823,10 +828,10 @@ tic4x_globl (int ignore ATTRIBUTE_UNUSED)
 }
 
 /* Handle .byte, .word. .int, .long */
-static void
+static void 
 tic4x_cons (int bytes)
 {
-  unsigned int c;
+  register unsigned int c;
   do
     {
       SKIP_WHITESPACE ();
@@ -866,11 +871,11 @@ tic4x_cons (int bytes)
 }
 
 /* Handle .ascii, .asciz, .string */
-static void
+static void 
 tic4x_stringer (int append_zero)
 {
   int bytes;
-  unsigned int c;
+  register unsigned int c;
 
   bytes = 0;
   do
@@ -903,7 +908,7 @@ tic4x_stringer (int append_zero)
               as_bad (_("Non-constant symbols not allowed\n"));
               return;
             }
-          exp.X_add_number &= 255; /* Limit number to 8-bit */
+          exp.X_add_number &= 255; /* Limit numeber to 8-bit */
 	  emit_expr (&exp, 1);
           bytes++;
 	}
@@ -919,7 +924,7 @@ tic4x_stringer (int append_zero)
 }
 
 /* .eval expression, symbol */
-static void
+static void 
 tic4x_eval (int x ATTRIBUTE_UNUSED)
 {
   char c;
@@ -934,14 +939,15 @@ tic4x_eval (int x ATTRIBUTE_UNUSED)
       as_bad (_("Symbol missing\n"));
       return;
     }
-  c = get_symbol_name (&name);	/* Get terminator.  */
+  name = input_line_pointer;
+  c = get_symbol_end ();	/* Get terminator.  */
   tic4x_insert_sym (name, value);
-  (void) restore_line_pointer (c);
+  *input_line_pointer++ = c;
   demand_empty_rest_of_line ();
 }
 
 /* Reset local labels.  */
-static void
+static void 
 tic4x_newblock (int x ATTRIBUTE_UNUSED)
 {
   dollar_label_clear ();
@@ -949,7 +955,7 @@ tic4x_newblock (int x ATTRIBUTE_UNUSED)
 
 /* .sect "section-name" [, value] */
 /* .sect ["]section-name[:subsection-name]["] [, value] */
-static void
+static void 
 tic4x_sect (int x ATTRIBUTE_UNUSED)
 {
   char c;
@@ -961,11 +967,11 @@ tic4x_sect (int x ATTRIBUTE_UNUSED)
   SKIP_WHITESPACE ();
   if (*input_line_pointer == '"')
     input_line_pointer++;
-  c = get_symbol_name (&section_name);	/* Get terminator.  */
-  if (c == '"')
-    c = * ++ input_line_pointer;
+  section_name = input_line_pointer;
+  c = get_symbol_end ();	/* Get terminator.  */
   input_line_pointer++;		/* Skip null symbol terminator.  */
-  name = xstrdup (section_name);
+  name = xmalloc (input_line_pointer - section_name + 1);
+  strcpy (name, section_name);
 
   /* TI C from version 5.0 allows a section name to contain a
      subsection name as well. The subsection name is separated by a
@@ -974,16 +980,13 @@ tic4x_sect (int x ATTRIBUTE_UNUSED)
      Volker Kuhlmann  <v.kuhlmann@elec.canterbury.ac.nz>.  */
   if (c == ':')
     {
-      char *subname;
-      c = get_symbol_name (&subname);	/* Get terminator.  */
-      if (c == '"')
-	c = * ++ input_line_pointer;
+      c = get_symbol_end ();	/* Get terminator.  */
       input_line_pointer++;	/* Skip null symbol terminator.  */
       as_warn (_(".sect: subsection name ignored"));
     }
 
   /* We might still have a '"' to discard, but the character after a
-     symbol name will be overwritten with a \0 by get_symbol_name()
+     symbol name will be overwritten with a \0 by get_symbol_end()
      [VK].  */
 
   if (c == ',')
@@ -1011,7 +1014,7 @@ tic4x_sect (int x ATTRIBUTE_UNUSED)
 		 bfd_errmsg (bfd_get_error ()));
     }
 
-  /* If the last character overwritten by get_symbol_name() was an
+  /* If the last character overwritten by get_symbol_end() was an
      end-of-line, we must restore it or the end of the line will not be
      recognised and scanning extends into the next line, stopping with
      an error (blame Volker Kuhlmann <v.kuhlmann@elec.canterbury.ac.nz>
@@ -1023,7 +1026,7 @@ tic4x_sect (int x ATTRIBUTE_UNUSED)
 }
 
 /* symbol[:] .set value  or  .set symbol, value */
-static void
+static void 
 tic4x_set (int x ATTRIBUTE_UNUSED)
 {
   symbolS *symbolP;
@@ -1034,9 +1037,8 @@ tic4x_set (int x ATTRIBUTE_UNUSED)
       char c;
       char *name;
 
-      c = get_symbol_name (&name);	/* Get terminator.  */
-      if (c == '"')
-	c = * ++ input_line_pointer;
+      name = input_line_pointer;
+      c = get_symbol_end ();	/* Get terminator.  */
       if (c != ',')
 	{
 	  as_bad (_(".set syntax invalid\n"));
@@ -1054,7 +1056,7 @@ tic4x_set (int x ATTRIBUTE_UNUSED)
 }
 
 /* [symbol] .usect ["]section-name["], size-in-words [, alignment-flag] */
-static void
+static void 
 tic4x_usect (int x ATTRIBUTE_UNUSED)
 {
   char c;
@@ -1071,11 +1073,11 @@ tic4x_usect (int x ATTRIBUTE_UNUSED)
   SKIP_WHITESPACE ();
   if (*input_line_pointer == '"')
     input_line_pointer++;
-  c = get_symbol_name (&section_name);	/* Get terminator.  */
-  if (c == '"')
-    c = * ++ input_line_pointer;
+  section_name = input_line_pointer;
+  c = get_symbol_end ();	/* Get terminator.  */
   input_line_pointer++;		/* Skip null symbol terminator.  */
-  name = xstrdup (section_name);
+  name = xmalloc (input_line_pointer - section_name + 1);
+  strcpy (name, section_name);
 
   if (c == ',')
     input_line_pointer =
@@ -1120,7 +1122,7 @@ tic4x_usect (int x ATTRIBUTE_UNUSED)
 }
 
 /* .version cpu-version.  */
-static void
+static void 
 tic4x_version (int x ATTRIBUTE_UNUSED)
 {
   offsetT temp;
@@ -1137,7 +1139,7 @@ tic4x_version (int x ATTRIBUTE_UNUSED)
   demand_empty_rest_of_line ();
 }
 
-static void
+static void 
 tic4x_init_regtable (void)
 {
   unsigned int i;
@@ -1155,7 +1157,7 @@ tic4x_init_regtable (void)
     }
 }
 
-static void
+static void 
 tic4x_init_symbols (void)
 {
   /* The TI tools accept case insensitive versions of these symbols,
@@ -1186,7 +1188,7 @@ tic4x_init_symbols (void)
      Source: TI: TMS320C3x/C4x Assembly Language Tools User's Guide,
      1997, SPRU035C, p. 3-17/3-18.  */
   tic4x_insert_sym (".REGPARM", tic4x_reg_args);
-  tic4x_insert_sym (".MEMPARM", !tic4x_reg_args);
+  tic4x_insert_sym (".MEMPARM", !tic4x_reg_args);	
   tic4x_insert_sym (".BIGMODEL", tic4x_big_model);
   tic4x_insert_sym (".C30INTERRUPT", 0);
   tic4x_insert_sym (".TMS320xx", tic4x_cpu == 0 ? 40 : tic4x_cpu);
@@ -1212,7 +1214,7 @@ tic4x_init_symbols (void)
 }
 
 /* Insert a new instruction template into hash table.  */
-static int
+static int 
 tic4x_inst_insert (const tic4x_inst_t *inst)
 {
   static char prev_name[16];
@@ -1233,7 +1235,7 @@ tic4x_inst_insert (const tic4x_inst_t *inst)
 
 /* Make a new instruction template.  */
 static tic4x_inst_t *
-tic4x_inst_make (const char *name, unsigned long opcode, const char *args)
+tic4x_inst_make (char *name, unsigned long opcode, char *args)
 {
   static tic4x_inst_t *insts = NULL;
   static char *names = NULL;
@@ -1242,9 +1244,10 @@ tic4x_inst_make (const char *name, unsigned long opcode, const char *args)
   if (insts == NULL)
     {
       /* Allocate memory to store name strings.  */
-      names = XNEWVEC (char, 8192);
+      names = (char *) xmalloc (sizeof (char) * 8192);
       /* Allocate memory for additional insts.  */
-      insts = XNEWVEC (tic4x_inst_t, 1024);
+      insts = (tic4x_inst_t *)
+	xmalloc (sizeof (tic4x_inst_t) * 1024);
     }
   insts[iindex].name = names;
   insts[iindex].opcode = opcode;
@@ -1261,10 +1264,10 @@ tic4x_inst_make (const char *name, unsigned long opcode, const char *args)
 }
 
 /* Add instruction template, creating dynamic templates as required.  */
-static int
+static int 
 tic4x_inst_add (const tic4x_inst_t *insts)
 {
-  const char *s = insts->name;
+  char *s = insts->name;
   char *d;
   unsigned int i;
   int ok = 1;
@@ -1288,7 +1291,7 @@ tic4x_inst_add (const tic4x_inst_t *insts)
 	    {
 	      tic4x_inst_t *inst;
 	      int k = 0;
-	      const char *c = tic4x_conds[i].name;
+	      char *c = tic4x_conds[i].name;
 	      char *e = d;
 
 	      while (*c)
@@ -1332,7 +1335,7 @@ tic4x_inst_add (const tic4x_inst_t *insts)
 /* This function is called once, at assembler startup time.  It should
    set up all the tables, etc., that the MD part of the assembler will
    need.  */
-void
+void 
 md_begin (void)
 {
   int ok = 1;
@@ -1389,18 +1392,18 @@ md_begin (void)
   tic4x_init_symbols ();
 }
 
-void
+void 
 tic4x_end (void)
 {
-  bfd_set_arch_mach (stdoutput, bfd_arch_tic4x,
+  bfd_set_arch_mach (stdoutput, bfd_arch_tic4x, 
 		     IS_CPU_TIC4X (tic4x_cpu) ? bfd_mach_tic4x : bfd_mach_tic3x);
 }
 
-static int
+static int 
 tic4x_indirect_parse (tic4x_operand_t *operand,
 		      const tic4x_indirect_t *indirect)
 {
-  const char *n = indirect->name;
+  char *n = indirect->name;
   char *s = input_line_pointer;
   char *b;
   symbolS *symbolP;
@@ -1510,16 +1513,17 @@ tic4x_operand_parse (char *s, tic4x_operand_t *operand)
   input_line_pointer = s;
   SKIP_WHITESPACE ();
 
-  c = get_symbol_name (&str);	/* Get terminator.  */
+  str = input_line_pointer;
+  c = get_symbol_end ();	/* Get terminator.  */
   new_pointer = input_line_pointer;
   if (strlen (str) && (entry = hash_find (tic4x_asg_hash, str)) != NULL)
     {
-      (void) restore_line_pointer (c);
+      *input_line_pointer = c;
       input_line_pointer = (char *) entry;
     }
   else
     {
-      (void) restore_line_pointer (c);
+      *input_line_pointer = c;
       input_line_pointer = str;
     }
 
@@ -1553,10 +1557,10 @@ tic4x_operand_parse (char *s, tic4x_operand_t *operand)
       /* Allow ori ^foo, ar0 to be equivalent to ldi .hi.foo, ar0  */
       /* WARNING : The TI C40 assembler cannot do this.  */
       else if (exp->X_op == O_symbol)
-	operand->mode = M_HI;
-      else
-	as_bad (_("Expecting a constant value"));
-      break;
+	{
+	  operand->mode = M_HI;
+	  break;
+	}
 
     case '#':
       input_line_pointer = tic4x_expression (++input_line_pointer, exp);
@@ -1576,11 +1580,14 @@ tic4x_operand_parse (char *s, tic4x_operand_t *operand)
       /* Allow ori foo, ar0 to be equivalent to ldi .lo.foo, ar0  */
       /* WARNING : The TI C40 assembler cannot do this.  */
       else if (exp->X_op == O_symbol)
-	operand->mode = M_IMMED;
+	{
+	  operand->mode = M_IMMED;
+	  break;
+	}
+
       else
 	as_bad (_("Expecting a constant value"));
       break;
-
     case '\\':
 #endif
     case '@':
@@ -1655,7 +1662,7 @@ tic4x_operand_parse (char *s, tic4x_operand_t *operand)
   return new_pointer;
 }
 
-static int
+static int 
 tic4x_operands_match (tic4x_inst_t *inst, tic4x_insn_t *tinsn, int check)
 {
   const char *args = inst->args;
@@ -1817,7 +1824,7 @@ tic4x_operands_match (tic4x_inst_t *inst, tic4x_insn_t *tinsn, int check)
           if (!(operand->mode == M_REGISTER))
             break;
 	  reg = exp->X_add_number;
-	  if ( (reg >= REG_R0 && reg <= REG_R7)
+	  if ( (reg >= REG_R0 && reg <= REG_R7) 
                || (IS_CPU_TIC4X (tic4x_cpu) && reg >= REG_R8 && reg <= REG_R11) )
 	    INSERTU (opcode, reg, 7, 0);
 	  else
@@ -1857,7 +1864,7 @@ tic4x_operands_match (tic4x_inst_t *inst, tic4x_insn_t *tinsn, int check)
 	  if (operand->mode != M_REGISTER)
 	    break;
 	  reg = exp->X_add_number;
-	  if ( (reg >= REG_R0 && reg <= REG_R7)
+	  if ( (reg >= REG_R0 && reg <= REG_R7) 
                || (IS_CPU_TIC4X (tic4x_cpu) && reg >= REG_R8 && reg <= REG_R11) )
 	    INSERTU (opcode, reg, 15, 8);
 	  else
@@ -2048,7 +2055,7 @@ tic4x_operands_match (tic4x_inst_t *inst, tic4x_insn_t *tinsn, int check)
 	  if (operand->mode != M_REGISTER)
 	    break;
 	  reg = exp->X_add_number;
-	  if ( (reg >= REG_R0 && reg <= REG_R7)
+	  if ( (reg >= REG_R0 && reg <= REG_R7) 
                || (IS_CPU_TIC4X (tic4x_cpu) && reg >= REG_R8 && reg <= REG_R11) )
 	    INSERTU (opcode, reg, 15, 0);
 	  else
@@ -2070,7 +2077,7 @@ tic4x_operands_match (tic4x_inst_t *inst, tic4x_insn_t *tinsn, int check)
 	  if (operand->mode != M_REGISTER)
 	    break;
 	  reg = exp->X_add_number;
-	  if ( (reg >= REG_R0 && reg <= REG_R7)
+	  if ( (reg >= REG_R0 && reg <= REG_R7) 
                || (IS_CPU_TIC4X (tic4x_cpu) && reg >= REG_R8 && reg <= REG_R11) )
 	    INSERTU (opcode, reg, 20, 16);
 	  else
@@ -2329,7 +2336,7 @@ tic4x_operands_match (tic4x_inst_t *inst, tic4x_insn_t *tinsn, int check)
 static void
 tic4x_insn_check (tic4x_insn_t *tinsn)
 {
-
+  
   if (!strcmp (tinsn->name, "lda"))
     {
       if (tinsn->num_operands < 2 || tinsn->num_operands > 2)
@@ -2347,17 +2354,17 @@ tic4x_insn_check (tic4x_insn_t *tinsn)
            || !strcmp (tinsn->name, "ldf1_ldf2")
            || !strcmp (tinsn->name, "ldf2_ldf1") )
     {
-      if (tinsn->num_operands < 4 || tinsn->num_operands > 5)
+      if (tinsn->num_operands < 4 && tinsn->num_operands > 5 )
         as_fatal ("Illegal internal %s insn definition", tinsn->name);
-
+      
       if (tinsn->operands[1].mode == M_REGISTER
 	  && tinsn->operands[tinsn->num_operands-1].mode == M_REGISTER
 	  && tinsn->operands[1].expr.X_add_number == tinsn->operands[tinsn->num_operands-1].expr.X_add_number )
-        as_warn (_("Equal parallel destination registers, one result will be discarded"));
+        as_warn (_("Equal parallell destination registers, one result will be discarded"));
     }
 }
 
-static void
+static void 
 tic4x_insn_output (tic4x_insn_t *tinsn)
 {
   char *dst;
@@ -2382,7 +2389,7 @@ tic4x_insn_output (tic4x_insn_t *tinsn)
 }
 
 /* Parse the operands.  */
-static int
+static int 
 tic4x_operands_parse (char *s, tic4x_operand_t *operands, int num_operands)
 {
   if (!*s)
@@ -2403,14 +2410,13 @@ tic4x_operands_parse (char *s, tic4x_operand_t *operands, int num_operands)
 /* Assemble a single instruction.  Its label has already been handled
    by the generic front end.  We just parse mnemonic and operands, and
    produce the bytes of data and relocation.  */
-void
+void 
 md_assemble (char *str)
 {
   int ok = 0;
   char *s;
   int i;
   int parsed = 0;
-  size_t len;
   tic4x_inst_t *inst;		/* Instruction template.  */
   tic4x_inst_t *first_inst;
 
@@ -2420,7 +2426,7 @@ md_assemble (char *str)
       s = str;
       while (*s && *s != '|')
         s++;
-
+      
       if (*s && s[1]=='|')
         {
           if(insn->parallel)
@@ -2430,7 +2436,7 @@ md_assemble (char *str)
               insn->in_use = 0;
               return;
             }
-
+          
           /* Lets take care of the first part of the parallel insn */
           *s++ = 0;
           md_assemble(str);
@@ -2439,7 +2445,7 @@ md_assemble (char *str)
           /* .. and let the second run though here */
         }
     }
-
+  
   if (str && insn->parallel)
     {
       /* Find mnemonic (second part of parallel instruction).  */
@@ -2449,8 +2455,8 @@ md_assemble (char *str)
 	s++;
       if (*s)			/* Null terminate for hash_find.  */
 	*s++ = '\0';		/* and skip past null.  */
-      len = strlen (insn->name);
-      snprintf (insn->name + len, TIC4X_NAME_MAX - len, "_%s", str);
+      strcat (insn->name, "_");
+      strncat (insn->name, str, TIC4X_NAME_MAX - 1 - strlen (insn->name));
 
       insn->operands[insn->num_operands++].mode = M_PARALLEL;
 
@@ -2512,8 +2518,7 @@ md_assemble (char *str)
 	s++;
       if (*s)			/* Null terminate for hash_find.  */
 	*s++ = '\0';		/* and skip past null.  */
-      strncpy (insn->name, str, TIC4X_NAME_MAX - 1);
-      insn->name[TIC4X_NAME_MAX - 1] = '\0';
+      strncpy (insn->name, str, TIC4X_NAME_MAX - 3);
 
       if ((i = tic4x_operands_parse (s, insn->operands, 0)) < 0)
 	{
@@ -2542,7 +2547,7 @@ tic4x_cleanup (void)
    of chars emitted is stored in *sizeP.  An error message is
    returned, or NULL on OK.  */
 
-const char *
+char *
 md_atof (int type, char *litP, int *sizeP)
 {
   int prec;
@@ -2615,7 +2620,7 @@ md_atof (int type, char *litP, int *sizeP)
   return NULL;
 }
 
-void
+void 
 md_apply_fix (fixS *fixP, valueT *value, segT seg ATTRIBUTE_UNUSED)
 {
   char *buf = fixP->fx_where + fixP->fx_frag->fr_literal;
@@ -2638,11 +2643,9 @@ md_apply_fix (fixS *fixP, valueT *value, segT seg ATTRIBUTE_UNUSED)
     {
     case BFD_RELOC_32:
       buf[3] = val >> 24;
-      /* Fall through.  */
     case BFD_RELOC_24:
     case BFD_RELOC_24_PCREL:
       buf[2] = val >> 16;
-      /* Fall through.  */
     case BFD_RELOC_16:
     case BFD_RELOC_16_PCREL:
     case BFD_RELOC_LO16:
@@ -2661,7 +2664,7 @@ md_apply_fix (fixS *fixP, valueT *value, segT seg ATTRIBUTE_UNUSED)
 }
 
 /* Should never be called for tic4x.  */
-void
+void 
 md_convert_frag (bfd *headers ATTRIBUTE_UNUSED,
 		 segT sec ATTRIBUTE_UNUSED,
 		 fragS *fragP ATTRIBUTE_UNUSED)
@@ -2702,7 +2705,7 @@ md_estimate_size_before_relax (fragS *fragP ATTRIBUTE_UNUSED,
 
 
 int
-md_parse_option (int c, const char *arg)
+md_parse_option (int c, char *arg)
 {
   switch (c)
     {
@@ -2720,28 +2723,24 @@ md_parse_option (int c, const char *arg)
 
     case 'b':
       as_warn (_("Option -b is depreciated, please use -mbig"));
-      /* Fall through.  */
     case OPTION_BIG:             /* big model */
       tic4x_big_model = 1;
       break;
 
     case 'p':
       as_warn (_("Option -p is depreciated, please use -mmemparm"));
-      /* Fall through.  */
     case OPTION_MEMPARM:         /* push args */
       tic4x_reg_args = 0;
       break;
 
-    case 'r':
+    case 'r':			
       as_warn (_("Option -r is depreciated, please use -mregparm"));
-      /* Fall through.  */
     case OPTION_REGPARM:        /* register args */
       tic4x_reg_args = 1;
       break;
 
     case 's':
       as_warn (_("Option -s is depreciated, please use -msmall"));
-      /* Fall through.  */
     case OPTION_SMALL:		/* small model */
       tic4x_big_model = 0;
       break;
@@ -2793,7 +2792,7 @@ md_show_usage (FILE *stream)
 /* This is called when a line is unrecognized.  This is used to handle
    definitions of TI C3x tools style local labels $n where n is a single
    decimal digit.  */
-int
+int 
 tic4x_unrecognized_line (int c)
 {
   int lab;
@@ -2870,7 +2869,7 @@ md_section_align (segT segment ATTRIBUTE_UNUSED, valueT size)
   return size;			/* Byte (i.e., 32-bit) alignment is fine?  */
 }
 
-static int
+static int 
 tic4x_pc_offset (unsigned int op)
 {
   /* Determine the PC offset for a C[34]x instruction.
@@ -2947,7 +2946,7 @@ md_pcrel_from (fixS *fixP)
 
 /* Fill the alignment area with NOP's on .text, unless fill-data
    was specified. */
-int
+int 
 tic4x_do_align (int alignment,
 		const char *fill,
 		int len,
@@ -2955,7 +2954,7 @@ tic4x_do_align (int alignment,
 {
   /* Because we are talking lwords, not bytes, adjust alignment to do words */
   alignment += 2;
-
+  
   if (alignment != 0 && !need_pass_2)
     {
       if (fill == NULL)
@@ -2975,13 +2974,13 @@ tic4x_do_align (int alignment,
       else
 	frag_align_pattern (alignment, fill, len, max);
     }
-
+  
   /* Return 1 to skip the default alignment function */
   return 1;
 }
 
 /* Look for and remove parallel instruction operator ||.  */
-void
+void 
 tic4x_start_line (void)
 {
   char *s = input_line_pointer;
@@ -3014,9 +3013,9 @@ tc_gen_reloc (asection *seg ATTRIBUTE_UNUSED, fixS *fixP)
 {
   arelent *reloc;
 
-  reloc = XNEW (arelent);
+  reloc = (arelent *) xmalloc (sizeof (arelent));
 
-  reloc->sym_ptr_ptr = XNEW (asymbol *);
+  reloc->sym_ptr_ptr = (asymbol **) xmalloc (sizeof (asymbol *));
   *reloc->sym_ptr_ptr = symbol_get_bfdsym (fixP->fx_addsy);
   reloc->address = fixP->fx_frag->fr_address + fixP->fx_where;
   reloc->address /= OCTETS_PER_BYTE;

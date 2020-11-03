@@ -1,4 +1,4 @@
-#skip: *-*-pe *-*-wince *-*-vxworks
+#skip: *-*-*coff *-*-pe *-*-wince *-*-*aout* *-*-netbsd *-*-riscix* *-*-vxworks
 #objdump: -dr --prefix-addresses --show-raw-insn
 #name: PR9722: Generation of Thumb NOP instruction
 

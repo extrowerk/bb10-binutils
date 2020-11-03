@@ -2,5 +2,5 @@
 #source: attr-gnu-4-2.s
 #as: -a32
 #ld: -r -melf32ppc
-#error: .* uses hard float, .* uses soft float
+#warning: Warning: .* uses soft float, .* uses single-precision hard float
 #target: powerpc*-*-*

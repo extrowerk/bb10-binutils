@@ -2,7 +2,7 @@
 #as: -J -march=l1om
 #objdump: -dw --insn-width=7
 #name: l1om
-#notarget: *-*-nacl*
+#not-target: *-*-nacl*
 
 .*: +file format elf64-l1om.*
 

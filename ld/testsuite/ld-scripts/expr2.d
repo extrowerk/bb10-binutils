@@ -1,6 +1,6 @@
 # ld: -T expr2.t
 #nm: -B
-#xfail: arm-*-*aout powerpc*-*-aix* rs6000-*-aix*
+#xfail: rs6000-*-aix* arm-*-*aout
 
 #...
 .* D defined

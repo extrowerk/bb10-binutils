@@ -1,4 +1,3 @@
-#as: -mx86-used-note=no
 #name: x32 size 3
 #source: ../size-3.s
 #readelf: -r

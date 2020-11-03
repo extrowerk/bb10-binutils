@@ -2,13 +2,10 @@
 
 	.text
 l1:
-	.insn
 	.space 20
 l2:
-	.insn
 	.space 20
 l3:
-	.insn
 	.space 20
 
 x:
@@ -21,13 +18,10 @@ x:
 
 	.space 20
 l4:
-	.insn
 	.space 20
 l5:
-	.insn
 	.space 20
 l6:
-	.insn
 
 # Force at least 8 (non-delay-slot) zero bytes, to make 'objdump' print ...
 	.space	8

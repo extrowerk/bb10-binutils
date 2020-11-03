@@ -15,13 +15,14 @@ case ${target} in
 	TEXT_START_ADDR=0x0
 	GOT="
 .got ${RELOCATING-0} : {
-  ${RELOCATING+*(.dsbt)
-  *(.got.plt) *(.igot.plt) }*(.got)${RELOCATING+ *(.igot)}
+  *(.dsbt)
+  *(.got.plt) *(.igot.plt) *(.got) *(.igot)
 }"
 	;;
 esac
 MAXPAGESIZE="CONSTANT (MAXPAGESIZE)"
 ARCH=tic6x
+EXECUTABLE_SYMBOLS="EXTERN (__c6xabi_DSBT_BASE);"
 OTHER_GOT_SYMBOLS="PROVIDE_HIDDEN (__c6xabi_DSBT_BASE = .);"
 # ".bss" is near (small) BSS, ".far" is far (normal) BSS, ".const" is
 # far read-only data, ".rodata" is near read-only data.  ".neardata"
@@ -43,12 +44,7 @@ OTHER_READWRITE_SECTIONS=".fardata ${RELOCATING-0} : { *(.fardata${RELOCATING+ .
 OTHER_READWRITE_RELOC_SECTIONS="
   .rel.fardata     ${RELOCATING-0} : { *(.rel.fardata${RELOCATING+ .rel.fardata.*}) }
   .rela.fardata    ${RELOCATING-0} : { *(.rela.fardata${RELOCATING+ .rela.fardata.*}) }"
-# For relocating operation, skip OTHER_BSS_SECTIONS, or will cause multiple definition.
-if [ ${RELOCATING-0} ]; then
-  OTHER_BSS_SECTIONS="";
-else
-  case ${target} in
-
+case ${target} in
     *-elf)
 	OTHER_BSS_SECTIONS="
   .heap :
@@ -64,6 +60,5 @@ else
     _STACK_START = .;
   }"
 	;;
-  esac
-fi
+esac
 ATTRS_SECTIONS='.c6xabi.attributes 0 : { KEEP (*(.c6xabi.attributes)) KEEP (*(.gnu.attributes)) }'

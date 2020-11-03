@@ -1,4 +1,4 @@
-#   Copyright (C) 1993-2019 Free Software Foundation, Inc.
+#   Copyright (C) 1993-2014 Free Software Foundation, Inc.
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,31 +42,30 @@ if {[which $OBJDUMP] == 0} then {
 send_user "Version [binutil_version $OBJDUMP]"
 
 if {![binutils_assemble $srcdir/$subdir/addendbug.s tmpdir/addendbug.o]} then {
-    fail "addendbug test (assembling)"
+    return
+}
+
+if [is_remote host] {
+    set objfile [remote_download host tmpdir/addendbug.o]
 } else {
+    set objfile tmpdir/addendbug.o
+}
 
-    if [is_remote host] {
-	set objfile [remote_download host tmpdir/addendbug.o]
-    } else {
-	set objfile tmpdir/addendbug.o
-    }
+# Make sure the SOM BFD code sign extends constants in R_DATA_OVERRIDE fixups.
 
-    # Make sure the SOM BFD code sign extends constants in
-    # R_DATA_OVERRIDE fixups.
+set got [binutils_run $OBJDUMP "$OBJDUMPFLAGS -r $objfile"]
 
-    set got [binutils_run $OBJDUMP "$OBJDUMPFLAGS -r $objfile"]
+if [istarget hppa*-*-*elf*] then {
+  set want "00000000 R_PARISC_DPREL21L\[ 	\]+is_idchar-0x00000020.*"
+} else {
+  set want "00000000 R_DP_RELATIVE\[ 	\]+is_idchar-0x00000020.*"
+}
 
-    if [istarget hppa*-*-*elf*] then {
-	set want "00000000 R_PARISC_DPREL21L\[ 	\]+is_idchar-0x00000020.*"
-    } else {
-	set want "00000000 R_DP_RELATIVE\[ 	\]+is_idchar-0x00000020.*"
-    }
 
-    if [regexp $want $got] then {
-	pass "addendbug test"
-    } else {
-	fail "addendbug test"
-    }
+if [regexp $want $got] then {
+    pass "addendbug test"
+} else {
+    fail "addendbug test"
 }
 
 ###########################
@@ -74,24 +73,23 @@ if {![binutils_assemble $srcdir/$subdir/addendbug.s tmpdir/addendbug.o]} then {
 ###########################
 
 if {![binutils_assemble $srcdir/$subdir/freg.s tmpdir/freg.o]} then {
-    fail "freg test (assembling)"
+    return
+}
+
+if [is_remote host] {
+    set objfile [remote_download host tmpdir/freg.o]
 } else {
+    set objfile tmpdir/freg.o
+}
 
-    if [is_remote host] {
-	set objfile [remote_download host tmpdir/freg.o]
-    } else {
-	set objfile tmpdir/freg.o
-    }
+# Make sure that we get R float regs like we're supposed to
 
-    # Make sure that we get R float regs like we're supposed to
+set got [binutils_run $OBJDUMP "$OBJDUMPFLAGS --disassemble $objfile"]
 
-    set got [binutils_run $OBJDUMP "$OBJDUMPFLAGS --disassemble $objfile"]
+set want "fmpyfadd,sgl fr4,fr4R,fr5R,fr5"
 
-    set want "fmpyfadd,sgl fr4,fr4R,fr5R,fr5"
-
-    if [regexp $want $got] then {
-	pass "freg test"
-    } else {
-	fail "freg test"
-    }
+if [regexp $want $got] then {
+    pass "freg test"
+} else {
+    fail "freg test"
 }

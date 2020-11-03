@@ -1,7 +1,7 @@
 ENTRY (foo_global)
 SECTIONS
 {
-  . = SIZEOF_HEADERS;
+  . = 0;
   .interp		: { *(.interp) }
   .hash			: { *(.hash) }
   .dynsym		: { *(.dynsym) }

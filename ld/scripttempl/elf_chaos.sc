@@ -1,5 +1,5 @@
-# Copyright (C) 2014-2019 Free Software Foundation, Inc.
-#
+# Copyright (C) 2014 Free Software Foundation, Inc.
+# 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
 # notice and this notice are preserved.
@@ -31,15 +31,15 @@
 #	DATA_PLT - .plt should be in data segment, not text segment.
 #	BSS_PLT - .plt should be in bss segment
 #	TEXT_DYNAMIC - .dynamic in text segment, not data segment.
-#	EMBEDDED - whether this is for an embedded system.
+#	EMBEDDED - whether this is for an embedded system. 
 #	SHLIB_TEXT_START_ADDR - if set, add to SIZEOF_HEADERS to set
 #		start address of shared library.
 #	INPUT_FILES - INPUT command of files to always include
 #	WRITABLE_RODATA - if set, the .rodata section should be writable
 #	INIT_START, INIT_END -  statements just before and just after
-#	combination of .init sections.
+# 	combination of .init sections.
 #	FINI_START, FINI_END - statements just before and just after
-#	combination of .fini sections.
+# 	combination of .fini sections.
 #	STACK_ADDR - start of a .stack section.
 #	OTHER_SYMBOLS - symbols to place right at the end of the script.
 #
@@ -95,7 +95,7 @@ if test -z "${NO_SMALL_DATA}"; then
   SDATA="/* We want the small data sections together, so single-instruction offsets
      can access them all, and initialized data all before uninitialized, so
      we can shorten the on-disk segment size.  */
-  .sdata        ${RELOCATING-0} :
+  .sdata        ${RELOCATING-0} : 
   {
     ${RELOCATING+${SDATA_START_SYMBOLS}}
     *(.sdata${RELOCATING+ .sdata.* .gnu.linkonce.s.*})
@@ -153,7 +153,7 @@ STACK="  .stack        ${RELOCATING-0}${RELOCATING+${STACK_ADDR}} :
 test -z "${TEXT_BASE_ADDRESS}" && TEXT_BASE_ADDRESS="${TEXT_START_ADDR}"
 
 cat <<EOF
-/* Copyright (C) 2014-2019 Free Software Foundation, Inc.
+/* Copyright (C) 2014 Free Software Foundation, Inc.
 
    Copying and distribution of this script, with or without modification,
    are permitted in any medium without royalty provided the copyright
@@ -226,19 +226,19 @@ cat <<EOF
   .rel.dyn      ${RELOCATING-0} :
     {
 EOF
-sed -e '/^[	 ]*[{}][	 ]*$/d;/:[	 ]*$/d;/\.rela\./d;s/^.*: { *\(.*\)}$/      \1/' $COMBRELOC
+sed -e '/^[ 	]*[{}][ 	]*$/d;/:[ 	]*$/d;/\.rela\./d;s/^.*: { *\(.*\)}$/      \1/' $COMBRELOC
 cat <<EOF
     }
   .rela.dyn     ${RELOCATING-0} :
     {
 EOF
-sed -e '/^[	 ]*[{}][	 ]*$/d;/:[	 ]*$/d;/\.rel\./d;s/^.*: { *\(.*\)}/      \1/' $COMBRELOC
+sed -e '/^[ 	]*[{}][ 	]*$/d;/:[ 	]*$/d;/\.rel\./d;s/^.*: { *\(.*\)}/      \1/' $COMBRELOC
 cat <<EOF
     }
 EOF
 fi
 cat <<EOF
-  ${RELOCATING+. = ALIGN(0x1000);}
+  . = ALIGN(0x1000);
   .rel.plt      ${RELOCATING-0} : { *(.rel.plt) }
   .rela.plt     ${RELOCATING-0} : { *(.rela.plt) }
   ${OTHER_PLT_RELOC_SECTIONS}
@@ -260,36 +260,36 @@ cat <<EOF
   ${RELOCATING+PROVIDE (__etext = .);}
   ${RELOCATING+PROVIDE (_etext = .);}
   ${RELOCATING+PROVIDE (etext = .);}
-  ${RELOCATING+. = ALIGN(0x1000);}
+  . = ALIGN(0x1000);
   ${CREATE_SHLIB-${SDATA2}}
   ${CREATE_SHLIB-${SBSS2}}
   ${OTHER_READONLY_SECTIONS}
-  .eh_frame_hdr ${RELOCATING-0} : { *(.eh_frame_hdr) }
+  .eh_frame_hdr : { *(.eh_frame_hdr) }
 
-  ${RELOCATING+. = ALIGN(0x1000);}
+  . = ALIGN(0x1000);
   .data         ${RELOCATING-0} :
   {
-    ${RELOCATING+*(.rodata .rodata.*)
+    *(.rodata .rodata.*)
     *(.rodata1)
     *(.gnu.linkonce.r.*)
-    ${DATA_START_SYMBOLS}}
+    ${RELOCATING+${DATA_START_SYMBOLS}}
     *(.data${RELOCATING+ .data.* .gnu.linkonce.d.*})
     ${CONSTRUCTING+SORT(CONSTRUCTORS)}
-    ${RELOCATING+KEEP (*(.eh_frame))
+    KEEP (*(.eh_frame))
     *(.gcc_except_table)
     ${CTOR}
     ${DTOR}
-    KEEP (*(.jcr))}
+    KEEP (*(.jcr))
   }
   .data1        ${RELOCATING-0} : { *(.data1) }
-  ${RELOCATING+. = ALIGN(0x1000);}
+  . = ALIGN(0x1000);
   .gcc_except_table ${RELOCATING-0} : { *(.gcc_except_table) }
   ${WRITABLE_RODATA+${RODATA}}
   ${OTHER_READWRITE_SECTIONS}
   ${TEXT_DYNAMIC-${DYNAMIC}}
   ${DATA_PLT+${PLT}}
   ${RELOCATING+${OTHER_GOT_SYMBOLS}}
-  .got          ${RELOCATING-0} : {${RELOCATING+ *(.got.plt)} *(.got) }
+  .got          ${RELOCATING-0} : { *(.got.plt) *(.got) }
   ${OTHER_GOT_SECTIONS}
   ${CREATE_SHLIB+${SDATA2}}
   ${CREATE_SHLIB+${SBSS2}}
@@ -301,25 +301,25 @@ cat <<EOF
   ${RELOCATING+${OTHER_BSS_SYMBOLS}}
   ${SBSS}
   ${BSS_PLT+${PLT}}
-  ${RELOCATING+. = ALIGN(0x1000);}
+  . = ALIGN(0x1000);
   .bss          ${RELOCATING-0} :
   {
-   ${RELOCATING+*(.dynbss)}
+   *(.dynbss)
    *(.bss${RELOCATING+ .bss.* .gnu.linkonce.b.*})
-   ${RELOCATING+*(COMMON)
+   *(COMMON)
    /* Align here to ensure that the .bss section occupies space up to
       _end.  Align after .bss to ensure correct alignment even if the
       .bss section disappears because there are no input sections.  */
-   . = ALIGN(${ALIGNMENT});}
+   ${RELOCATING+. = ALIGN(${ALIGNMENT});}
   }
   ${RELOCATING+${OTHER_BSS_END_SYMBOLS}}
   ${RELOCATING+. = ALIGN(${ALIGNMENT});}
   ${RELOCATING+${OTHER_END_SYMBOLS}}
   ${RELOCATING+_end = .;}
   ${RELOCATING+PROVIDE (end = .);}
-  ${STACK_ADDR+${STACK}}
 
   /* Stabs debugging sections.  */
+  . = ALIGN(0x1000);
   .stab          0 : { *(.stab) }
   .stabstr       0 : { *(.stabstr) }
   .stab.excl     0 : { *(.stab.excl) }
@@ -327,6 +327,7 @@ cat <<EOF
   .stab.index    0 : { *(.stab.index) }
   .stab.indexstr 0 : { *(.stab.indexstr) }
 
+  . = ALIGN(0x1000);
   .comment       0 : { *(.comment) }
 
 EOF
@@ -334,6 +335,7 @@ EOF
 . $srcdir/scripttempl/DWARF.sc
 
 cat <<EOF
+  ${STACK_ADDR+${STACK}}
   ${ATTRS_SECTIONS}
   ${OTHER_SECTIONS}
   ${RELOCATING+${OTHER_SYMBOLS}}

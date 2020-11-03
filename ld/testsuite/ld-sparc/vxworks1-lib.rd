@@ -1,5 +1,5 @@
 
-Relocation section '\.rela\.plt' at offset .* contains 1 entry:
+Relocation section '\.rela\.plt' at offset .* contains 1 entries:
  Offset     Info    Type            Sym\.Value  Sym\. Name \+ Addend
 0009040c  .*15 R_SPARC_JMP_SLOT  00000000   sexternal \+ 0
 

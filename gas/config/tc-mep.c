@@ -1,5 +1,5 @@
 /* tc-mep.c -- Assembler for the Toshiba Media Processor.
-   Copyright (C) 2001-2019 Free Software Foundation, Inc.
+   Copyright (C) 2001-2014 Free Software Foundation, Inc.
 
    This file is part of GAS, the GNU Assembler.
 
@@ -28,6 +28,7 @@
 #include "cgen.h"
 #include "elf/common.h"
 #include "elf/mep.h"
+#include "libbfd.h"
 #include "xregex.h"
 
 /* Structure to hold all of the different components describing
@@ -194,7 +195,7 @@ static int optbits = 0;
 static int optbitset = 0;
 
 int
-md_parse_option (int c, const char *arg ATTRIBUTE_UNUSED)
+md_parse_option (int c, char *arg ATTRIBUTE_UNUSED)
 {
   int i, idx;
   switch (c)
@@ -442,7 +443,7 @@ mep_machine (void)
 /* The MeP version of the cgen parse_operand function.  The only difference
    from the standard version is that we want to avoid treating '$foo' and
    '($foo...)' as references to a symbol called '$foo'.  The chances are
-   that '$foo' is really a misspelled register.  */
+   that '$foo' is really a misspelt register.  */
 
 static const char *
 mep_parse_operand (CGEN_CPU_DESC cd, enum cgen_parse_operand_type want,
@@ -464,7 +465,7 @@ mep_parse_operand (CGEN_CPU_DESC cd, enum cgen_parse_operand_type want,
 }
 
 void
-md_begin (void)
+md_begin ()
 {
   /* Initialize the `cgen' interface.  */
 
@@ -507,7 +508,7 @@ md_begin (void)
   gas_cgen_initialize_saved_fixups_array();
 }
 
-/* Variant of mep_cgen_assemble_insn.  Assemble insn STR of cpu CD as a
+/* Variant of mep_cgen_assemble_insn.  Assemble insn STR of cpu CD as a 
    coprocessor instruction, if possible, into FIELDS, BUF, and INSN.  */
 
 static const CGEN_INSN *
@@ -522,14 +523,14 @@ mep_cgen_assemble_cop_insn (CGEN_CPU_DESC cd,
   const char *errmsg = NULL;
 
   /* The instructions are stored in hashed lists. */
-  ilist = CGEN_ASM_LOOKUP_INSN (gas_cgen_cpu_desc,
+  ilist = CGEN_ASM_LOOKUP_INSN (gas_cgen_cpu_desc, 
 				CGEN_INSN_MNEMONIC (pinsn));
 
   start = str;
   for ( ; ilist != NULL ; ilist = CGEN_ASM_NEXT_INSN (ilist))
     {
       const CGEN_INSN *insn = ilist->insn;
-      if (strcmp (CGEN_INSN_MNEMONIC (ilist->insn),
+      if (strcmp (CGEN_INSN_MNEMONIC (ilist->insn), 
 		  CGEN_INSN_MNEMONIC (pinsn)) == 0
 	  && MEP_INSN_COP_P (ilist->insn)
 	  && mep_cgen_insn_supported (cd, insn))
@@ -547,7 +548,7 @@ mep_cgen_assemble_cop_insn (CGEN_CPU_DESC cd,
 	  errmsg = CGEN_PARSE_FN (cd, insn) (cd, insn, & str, fields);
 	  if (errmsg != NULL)
 	    continue;
-
+	  
 	  errmsg = CGEN_INSERT_FN (cd, insn) (cd, insn, fields, buf,
 					      (bfd_vma) 0);
 	  if (errmsg != NULL)
@@ -582,7 +583,7 @@ mep_check_parallel32_scheduling (void)
      an internally parallel core or an internally parallel coprocessor,
      neither of which are supported at this time.  */
   if ( num_insns_saved > 2 )
-    as_fatal("Internally paralleled cores and coprocessors not supported.");
+    as_fatal("Internally paralled cores and coprocessors not supported.");
 
   /* If there are no insns saved, that's ok.  Just return.  This will
      happen when mep_process_saved_insns is called when the end of the
@@ -611,7 +612,7 @@ mep_check_parallel32_scheduling (void)
 	    as_bad (_("core and copro insn lengths must total 32 bits."));
 	}
       else
-        as_bad (_("vliw group must consist of 1 core and 1 copro insn."));
+        as_bad (_("vliw group must consist of 1 core and 1 copro insn.")); 
     }
   else
     {
@@ -621,7 +622,7 @@ mep_check_parallel32_scheduling (void)
 	 1.  The instruction is a 32 bit core or coprocessor insn and
              can be executed by itself.  Valid.
 
-         2.  The instruction is a core instruction for which a cop nop
+         2.  The instrucion is a core instruction for which a cop nop
              exists.  In this case, insert the cop nop into the saved
              insn array after the core insn and return.  Valid.
 
@@ -647,17 +648,17 @@ mep_check_parallel32_scheduling (void)
                                 CGEN_INSN_VLIW32_NO_MATCHING_NOP))
 	as_fatal ("No valid nop.");
 
-      /* At this point we know that we have a single 16-bit insn that has
-	 a matching nop.  We have to assemble it and put it into the saved
+      /* At this point we know that we have a single 16-bit insn that has 
+	 a matching nop.  We have to assemble it and put it into the saved 
          insn and fixup chain arrays. */
 
       if (insn0iscopro)
 	{
           char *errmsg;
           mep_insn insn;
-
+         
           /* Move the insn and it's fixups to the second element of the
-             saved insns array and insert a 16 bit core nope into the
+             saved insns arrary and insert a 16 bit core nope into the
              first element. */
              insn.insn = mep_cgen_assemble_insn (gas_cgen_cpu_desc, "nop",
                                                  &insn.fields, insn.buffer,
@@ -670,7 +671,7 @@ mep_check_parallel32_scheduling (void)
 
              /* Move the insn in element 0 to element 1 and insert the
                  nop into element 0.  Move the fixups in element 0 to
-                 element 1 and save the current fixups to element 0.
+                 element 1 and save the current fixups to element 0.  
                  Really there aren't any fixups at this point because we're
                  inserting a nop but we might as well be general so that
                  if there's ever a need to insert a general insn, we'll
@@ -758,7 +759,7 @@ mep_check_parallel64_scheduling (void)
          1.  The instruction is a 64 bit coprocessor insn and can be
              executed by itself.  Valid.
 
-         2.  The instruction is a core instruction for which a cop nop
+         2.  The instrucion is a core instruction for which a cop nop
              exists.  In this case, insert the cop nop into the saved
              insn array after the core insn and return.  Valid.
 
@@ -773,7 +774,7 @@ mep_check_parallel64_scheduling (void)
 	     we have to abort.  */
 
       /* If the insn is 64 bits long, it can run alone.  The size check
-	 is done independently of whether the insn is core or copro
+	 is done indepependantly of whether the insn is core or copro
 	 in case 64 bit coprocessor insns are added later.  */
       if (insn0length == 64)
         return;
@@ -817,7 +818,7 @@ mep_check_parallel64_scheduling (void)
                  nop has been added, then make the necessary changes and
                  handle its assembly and insertion here.  Otherwise,
                  go figure out why either:
-
+              
                  1. The assembler thinks that there is a 32-bit core nop
                     to match a 32-bit coprocessor insn, or
                  2. The assembler thinks that there is a 48-bit core nop
@@ -834,7 +835,7 @@ mep_check_parallel64_scheduling (void)
 
          /* Move the insn in element 0 to element 1 and insert the
             nop into element 0.  Move the fixups in element 0 to
-            element 1 and save the current fixups to element 0.
+            element 1 and save the current fixups to element 0. 
 	    Really there aren't any fixups at this point because we're
 	    inserting a nop but we might as well be general so that
 	    if there's ever a need to insert a general insn, we'll
@@ -1145,15 +1146,15 @@ mep_check_ivc2_scheduling (void)
 #endif /* MEP_IVC2_SUPPORTED */
 
 /* The scheduling functions are just filters for invalid combinations.
-   If there is a violation, they terminate assembly.  Otherwise they
-   just fall through.  Successful combinations cause no side effects
+   If there is a violation, they terminate assembly.  Otherise they
+   just fall through.  Succesful combinations cause no side effects
    other than valid nop insertion.  */
 
 static void
 mep_check_parallel_scheduling (void)
 {
   /* This is where we will eventually read the config information
-     and choose which scheduling checking function to call.  */
+     and choose which scheduling checking function to call.  */   
 #ifdef MEP_IVC2_SUPPORTED
   if (mep_cop == EF_MEP_COP_IVC2)
     mep_check_ivc2_scheduling ();
@@ -1219,7 +1220,7 @@ md_assemble (char * str)
 		     + copro insn
 
                  We want to handle the general case where more than
-                 one instruction can be preceded by a +.  This will
+                 one instruction can be preceeded by a +.  This will
                  happen later if we add support for internally parallel
                  coprocessors.  We'll make the parsing nice and general
                  so that it can handle an arbitrary number of insns
@@ -1243,9 +1244,9 @@ md_assemble (char * str)
       int thisInsnIsCopro = 0;
       mep_insn insn;
       int i;
-
+      
       /* Initialize the insn buffer */
-
+	
       if (! CGEN_INT_INSN_P)
          for (i=0; i < CGEN_MAX_INSN_SIZE; i++)
             insn.buffer[i]='\0';
@@ -1299,7 +1300,7 @@ md_assemble (char * str)
 	  /* Check for a + with a core insn and abort if found. */
 	  if (!thisInsnIsCopro)
 	    {
-	      as_fatal("A core insn cannot be preceded by a +.\n");
+	      as_fatal("A core insn cannot be preceeded by a +.\n");
 	      return;
 	    }
 
@@ -1381,7 +1382,7 @@ valueT
 md_section_align (segT segment, valueT size)
 {
   int align = bfd_get_section_alignment (stdoutput, segment);
-  return ((size + (1 << align) - 1) & -(1 << align));
+  return ((size + (1 << align) - 1) & (-1 << align));
 }
 
 
@@ -1545,7 +1546,7 @@ md_estimate_size_before_relax (fragS * fragP, segT segment)
       switch (fragP->fr_cgen.insn->base->num)
 	{
 	case MEP_INSN_BSR12:
-	  fragP->fr_subtype = insn_to_subtype
+	  fragP->fr_subtype = insn_to_subtype 
 	    (subtype_mappings[fragP->fr_subtype].insn_for_extern);
 	  break;
 	case MEP_INSN_BEQZ:
@@ -1613,7 +1614,7 @@ target_address_for (fragS *frag)
 }
 
 void
-md_convert_frag (bfd *abfd  ATTRIBUTE_UNUSED,
+md_convert_frag (bfd *abfd  ATTRIBUTE_UNUSED, 
 		 segT seg ATTRIBUTE_UNUSED,
 		 fragS *fragP)
 {
@@ -1708,7 +1709,7 @@ md_convert_frag (bfd *abfd  ATTRIBUTE_UNUSED,
 	    operand = MEP_OPERAND_PCREL17A2;
 	    break;
 	  }
-	/* Fall through.  */
+	/* ...FALLTHROUGH... */
 
       case MEP_INSN_JMP:
 	addend = target_address_for (fragP);
@@ -1723,7 +1724,6 @@ md_convert_frag (bfd *abfd  ATTRIBUTE_UNUSED,
 
       case MEP_INSN_BNEZ:
 	bit = 1;
-	/* Fall through.  */
       case MEP_INSN_BEQZ:
 	fragP->fr_opcode[1^e] = bit | (addend & 0xfe);
 	operand = MEP_OPERAND_PCREL8A2;
@@ -1731,7 +1731,6 @@ md_convert_frag (bfd *abfd  ATTRIBUTE_UNUSED,
 
       case MEP_INSN_BNEI:
 	bit = 4;
-	/* Fall through.  */
       case MEP_INSN_BEQI:
 	if (subtype_mappings[fragP->fr_subtype].growth)
 	  {
@@ -1800,7 +1799,7 @@ mep_apply_fix (fixS *fixP, valueT *valP, segT seg ATTRIBUTE_UNUSED)
 	break;
       }
 
-  /* Now call cgen's md_apply_fix.  */
+  /* Now call cgen's md_aply_fix.  */
   gas_cgen_md_apply_fix (fixP, valP, seg);
 }
 
@@ -1867,7 +1866,7 @@ md_cgen_lookup_reloc (const CGEN_INSN *insn ATTRIBUTE_UNUSED,
 #ifdef OBJ_COMPLEX_RELC
       /* coalescing this into RELOC_MEP_16 is actually a bug,
 	 since it's a signed operand. let the relc code handle it. */
-      return BFD_RELOC_RELC;
+      return BFD_RELOC_RELC; 
 #endif
 
     case MEP_OPERAND_UIMM16:
@@ -1880,7 +1879,7 @@ md_cgen_lookup_reloc (const CGEN_INSN *insn ATTRIBUTE_UNUSED,
 
     default:
 #ifdef OBJ_COMPLEX_RELC
-      /* this is not an error, yet.
+      /* this is not an error, yet. 
 	 pass it to the linker. */
       return BFD_RELOC_RELC;
 #endif
@@ -1935,7 +1934,7 @@ mep_cgen_record_fixup_exp (fragS *frag,
    tc_gen_reloc.  */
 
 void
-mep_frob_file (void)
+mep_frob_file ()
 {
   struct mep_hi_fixup * l;
 
@@ -2040,7 +2039,7 @@ md_number_to_chars (char *buf, valueT val, int n)
     number_to_chars_littleendian (buf, val, n);
 }
 
-const char *
+char *
 md_atof (int type, char *litP, int *sizeP)
 {
   return ieee_md_atof (type, litP, sizeP, TRUE);
@@ -2081,7 +2080,7 @@ mep_fix_adjustable (fixS *fixP)
 }
 
 bfd_vma
-mep_elf_section_letter (int letter, const char **ptrmsg)
+mep_elf_section_letter (int letter, char **ptrmsg)
 {
   if (letter == 'v')
     return SHF_MEP_VLIW;
@@ -2185,7 +2184,7 @@ mep_cleanup (void)
 {
   /* Take care of any insns left to be parallelized when the file ends.
      This is mainly here to handle the case where the file ends with an
-     insn preceded by a + or the file ends unexpectedly.  */
+     insn preceeded by a + or the file ends unexpectedly.  */
   if (mode == VLIW)
     mep_process_saved_insns ();
 }
@@ -2199,5 +2198,5 @@ mep_flush_pending_output (void)
       pluspresent = 0;
     }
 
-  return 1;
+  return 1; 
 }

@@ -1,8 +1,9 @@
 #include "vers.h"
 
-FUNC_SYMVER(_old_foo, foo@VERS.0);
-FUNC_SYMVER(_old_bar, bar@VERS.0);
+SYMVER(_old_foo, foo@VERS.0);
+SYMVER(_old_bar, bar@VERS.0);
 SYMVER(_old_foobar, foobar@VERS.0);
+__asm__(".weak " SYMPFX(_old_bar));
 
 int
 bar () 
@@ -10,7 +11,7 @@ bar ()
   return 1;
 }
 
-int __attribute__ ((weak))
+int
 _old_bar () 
 {
   return bar ();

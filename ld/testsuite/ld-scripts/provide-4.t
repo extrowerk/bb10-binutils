@@ -1,6 +1,5 @@
 SECTIONS
 {
-  . = SIZEOF_HEADERS;
   PROVIDE (foo = 1);
   PROVIDE (bar = 2);
   PROVIDE (baz = 3);

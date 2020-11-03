@@ -1,4 +1,5 @@
-#ld: -T no-shared-1.ld
+#as: -mabi=32 -EB
+#ld: -melf32btsmip -T no-shared-1.ld
 #objdump: -dr -j.text -j.data -j.got
 
 .*
@@ -14,7 +15,7 @@ Disassembly of section \.text:
 #...
 Disassembly of section \.data:
 
-00060000 .*:
+00060000 <\.data>:
    60000:	00068000 	.*
 #...
 Disassembly of section \.got:

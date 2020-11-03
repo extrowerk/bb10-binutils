@@ -1,21 +1,17 @@
 # Linker script for Itanium VMS systems.
 # Tristan Gingold <gingold@adacore.com>.
 #
-# Copyright (C) 2014-2019 Free Software Foundation, Inc.
-#
+# Copyright (C) 2014 Free Software Foundation, Inc.
+# 
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
 # notice and this notice are preserved.
-
-# Using an empty script for ld -r is better than mashing together
-# sections.  This hack likely leaves ld -Ur broken.
-test -n "${RELOCATING}" || exit 0
 
 PAGESIZE=0x10000
 BLOCKSIZE=0x200
 
 cat <<EOF
-/* Copyright (C) 2014-2019 Free Software Foundation, Inc.
+/* Copyright (C) 2014 Free Software Foundation, Inc.
 
    Copying and distribution of this script, with or without modification,
    are permitted in any medium without royalty provided the copyright
@@ -78,7 +74,7 @@ SECTIONS
     *(.IA_64.pltoff)
   }
   \$TFR\$ ALIGN (16) : {
-    /* Transfer vector.  */
+    /* Tranfer vector.  */
     __entry = .;
     *(.transfer)
   }
@@ -124,7 +120,7 @@ EOF
 
 . $srcdir/scripttempl/DWARF.sc
 
-cat <<EOF
+cat <<EOF  
   .note : { *(.vms.note) }
 
   /DISCARD/ : { *(.note) *(.vms_display_name_info) }

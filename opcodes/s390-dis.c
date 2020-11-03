@@ -1,5 +1,5 @@
 /* s390-dis.c -- Disassemble S390 instructions
-   Copyright (C) 2000-2019 Free Software Foundation, Inc.
+   Copyright (C) 2000-2014 Free Software Foundation, Inc.
    Contributed by Martin Schwidefsky (schwidefsky@de.ibm.com).
 
    This file is part of the GNU opcodes library.
@@ -22,33 +22,18 @@
 #include "sysdep.h"
 #include <stdio.h>
 #include "ansidecl.h"
-#include "disassemble.h"
+#include "dis-asm.h"
 #include "opintl.h"
 #include "opcode/s390.h"
-#include "libiberty.h"
 
+static int init_flag = 0;
 static int opc_index[256];
 static int current_arch_mask = 0;
-static int option_use_insn_len_bits_p = 0;
-
-typedef struct
-{
-  const char *name;
-  const char *description;
-} s390_options_t;
-
-static const s390_options_t options[] =
-{
-  { "esa" ,       N_("Disassemble in ESA architecture mode") },
-  { "zarch",      N_("Disassemble in z/Architecture mode") },
-  { "insnlength", N_("Print unknown instructions according to "
-		     "length from first two bits") }
-};
 
 /* Set up index table for first opcode byte.  */
 
-void
-disassemble_init_s390 (struct disassemble_info *info)
+static void
+init_disasm (struct disassemble_info *info)
 {
   int i;
   const char *p;
@@ -60,25 +45,24 @@ disassemble_init_s390 (struct disassemble_info *info)
   for (i = s390_num_opcodes; i--; )
     opc_index[s390_opcodes[i].opcode[0]] = i;
 
-  current_arch_mask = 1 << S390_OPCODE_ZARCH;
-  option_use_insn_len_bits_p = 0;
-
   for (p = info->disassembler_options; p != NULL; )
     {
       if (CONST_STRNEQ (p, "esa"))
 	current_arch_mask = 1 << S390_OPCODE_ESA;
       else if (CONST_STRNEQ (p, "zarch"))
 	current_arch_mask = 1 << S390_OPCODE_ZARCH;
-      else if (CONST_STRNEQ (p, "insnlength"))
-	option_use_insn_len_bits_p = 1;
       else
-	/* xgettext:c-format */
-	opcodes_error_handler (_("unknown S/390 disassembler option: %s"), p);
+	fprintf (stderr, "Unknown S/390 disassembler option: %s\n", p);
 
       p = strchr (p, ',');
       if (p != NULL)
 	p++;
     }
+
+  if (!current_arch_mask)
+    current_arch_mask = 1 << S390_OPCODE_ZARCH;
+
+  init_flag = 1;
 }
 
 /* Derive the length of an instruction from its first byte.  */
@@ -123,7 +107,6 @@ s390_extract_operand (const bfd_byte *insn,
   union operand_value ret;
   unsigned int val;
   int bits;
-  const bfd_byte *orig_insn = insn;
 
   /* Extract fragments of the operand byte for byte.  */
   insn += operand->shift / 8;
@@ -157,16 +140,6 @@ s390_extract_operand (const bfd_byte *insn,
   else if (operand->flags & S390_OPERAND_LENGTH)
     /* Length x in an instruction has real length x + 1.  */
     ret.u = val + 1;
-
-  else if (operand->flags & S390_OPERAND_VR)
-    {
-      /* Extract the extra bits for a vector register operand stored
-	 in the RXB field.  */
-      unsigned vr = operand->shift == 32 ? 3
-	: (unsigned) operand->shift / 4 - 2;
-
-      ret.u = val | ((orig_insn[4] & (1 << (3 - vr))) << (vr + 1));
-    }
   else
     ret.u = val;
 
@@ -205,54 +178,22 @@ s390_print_insn_with_opcode (bfd_vma memaddr,
 	  continue;
 	}
 
-      /* For instructions with a last optional operand don't print it
-	 if zero.  */
-      if ((opcode->flags & (S390_INSTR_FLAG_OPTPARM | S390_INSTR_FLAG_OPTPARM2))
-	  && val.u == 0
-	  && opindex[1] == 0)
-	break;
-
-      if ((opcode->flags & S390_INSTR_FLAG_OPTPARM2)
-	  && val.u == 0 && opindex[1] != 0 && opindex[2] == 0)
-	{
-	  union operand_value next_op_val =
-	    s390_extract_operand (buffer, s390_operands + opindex[1]);
-	  if (next_op_val.u == 0)
-	    break;
-	}
+      info->fprintf_func (info->stream, "%c", separator);
 
       if (flags & S390_OPERAND_GPR)
-	info->fprintf_func (info->stream, "%c%%r%u", separator, val.u);
+	info->fprintf_func (info->stream, "%%r%u", val.u);
       else if (flags & S390_OPERAND_FPR)
-	info->fprintf_func (info->stream, "%c%%f%u", separator, val.u);
-      else if (flags & S390_OPERAND_VR)
-	info->fprintf_func (info->stream, "%c%%v%i", separator, val.u);
+	info->fprintf_func (info->stream, "%%f%u", val.u);
       else if (flags & S390_OPERAND_AR)
-	info->fprintf_func (info->stream, "%c%%a%u", separator, val.u);
+	info->fprintf_func (info->stream, "%%a%u", val.u);
       else if (flags & S390_OPERAND_CR)
-	info->fprintf_func (info->stream, "%c%%c%u", separator, val.u);
+	info->fprintf_func (info->stream, "%%c%u", val.u);
       else if (flags & S390_OPERAND_PCREL)
-	{
-	  info->fprintf_func (info->stream, "%c", separator);
-	  info->print_address_func (memaddr + val.i + val.i, info);
-	}
+	info->print_address_func (memaddr + val.i + val.i, info);
       else if (flags & S390_OPERAND_SIGNED)
-	info->fprintf_func (info->stream, "%c%i", separator, val.i);
+	info->fprintf_func (info->stream, "%i", val.i);
       else
-	{
-	  if (flags & S390_OPERAND_OR1)
-	    val.u &= ~1;
-	  if (flags & S390_OPERAND_OR2)
-	    val.u &= ~2;
-	  if (flags & S390_OPERAND_OR8)
-	    val.u &= ~8;
-
-	  if ((opcode->flags & S390_INSTR_FLAG_OPTPARM)
-	      && val.u == 0
-	      && opindex[1] == 0)
-	    break;
-	  info->fprintf_func (info->stream, "%c%u", separator, val.u);
-	}
+	info->fprintf_func (info->stream, "%u", val.u);
 
       if (flags & S390_OPERAND_DISP)
 	separator = '(';
@@ -286,7 +227,10 @@ print_insn_s390 (bfd_vma memaddr, struct disassemble_info *info)
   bfd_byte buffer[6];
   const struct s390_opcode *opcode = NULL;
   unsigned int value;
-  int status, opsize, bufsize, bytes_to_dump, i;
+  int status, opsize, bufsize;
+
+  if (init_flag == 0)
+    init_disasm (info);
 
   /* The output looks better if we put 6 bytes on a line.  */
   info->bytes_per_line = 6;
@@ -329,104 +273,47 @@ print_insn_s390 (bfd_vma memaddr, struct disassemble_info *info)
 		  || opcode_mask_more_specific (op, opcode)))
 	    opcode = op;
 	}
-
-      if (opcode != NULL)
-	{
-	  /* The instruction is valid.  Print it and return its size.  */
-	  s390_print_insn_with_opcode (memaddr, info, buffer, opcode);
-	  return opsize;
-	}
     }
 
-  /* For code sections it makes sense to skip unknown instructions
-     according to their length bits.  */
-  if (status == 0
-      && option_use_insn_len_bits_p
-      && info->section != NULL
-      && (info->section->flags & SEC_CODE))
-    bytes_to_dump = opsize;
-  else
-    /* By default unknown instructions are printed as .long's/.short'
-       depending on how many bytes are available.  */
-    bytes_to_dump = bufsize >= 4 ? 4 : bufsize;
-
-  if (bytes_to_dump == 0)
-    return 0;
+  if (opcode != NULL)
+    {
+      /* The instruction is valid.  Print it and return its size.  */
+      s390_print_insn_with_opcode (memaddr, info, buffer, opcode);
+      return opsize;
+    }
 
   /* Fall back to hex print.  */
-  switch (bytes_to_dump)
+  if (bufsize >= 4)
     {
-    case 4:
       value = (unsigned int) buffer[0];
       value = (value << 8) + (unsigned int) buffer[1];
       value = (value << 8) + (unsigned int) buffer[2];
       value = (value << 8) + (unsigned int) buffer[3];
       info->fprintf_func (info->stream, ".long\t0x%08x", value);
       return 4;
-    case 2:
+    }
+  else if (bufsize >= 2)
+    {
       value = (unsigned int) buffer[0];
       value = (value << 8) + (unsigned int) buffer[1];
       info->fprintf_func (info->stream, ".short\t0x%04x", value);
       return 2;
-    default:
-      info->fprintf_func (info->stream, ".byte\t0x%02x",
-			  (unsigned int) buffer[0]);
-      for (i = 1; i < bytes_to_dump; i++)
-	info->fprintf_func (info->stream, ",0x%02x",
-			  (unsigned int) buffer[i]);
-      return bytes_to_dump;
     }
-  return 0;
-}
-
-const disasm_options_and_args_t *
-disassembler_options_s390 (void)
-{
-  static disasm_options_and_args_t *opts_and_args;
-
-  if (opts_and_args == NULL)
+  else
     {
-      size_t i, num_options = ARRAY_SIZE (options);
-      disasm_options_t *opts;
-
-      opts_and_args = XNEW (disasm_options_and_args_t);
-      opts_and_args->args = NULL;
-
-      opts = &opts_and_args->options;
-      opts->name = XNEWVEC (const char *, num_options + 1);
-      opts->description = XNEWVEC (const char *, num_options + 1);
-      opts->arg = NULL;
-      for (i = 0; i < num_options; i++)
-	{
-	  opts->name[i] = options[i].name;
-	  opts->description[i] = _(options[i].description);
-	}
-      /* The array we return must be NULL terminated.  */
-      opts->name[i] = NULL;
-      opts->description[i] = NULL;
+      value = (unsigned int) buffer[0];
+      info->fprintf_func (info->stream, ".byte\t0x%02x", value);
+      return 1;
     }
-
-  return opts_and_args;
 }
 
 void
 print_s390_disassembler_options (FILE *stream)
 {
-  unsigned int i, max_len = 0;
   fprintf (stream, _("\n\
 The following S/390 specific disassembler options are supported for use\n\
 with the -M switch (multiple options should be separated by commas):\n"));
 
-  for (i = 0; i < ARRAY_SIZE (options); i++)
-    {
-      unsigned int len = strlen (options[i].name);
-      if (max_len < len)
-	max_len = len;
-    }
-
-  for (i = 0, max_len++; i < ARRAY_SIZE (options); i++)
-    fprintf (stream, "  %s%*c %s\n",
-	     options[i].name,
-	     (int)(max_len - strlen (options[i].name)), ' ',
-	     _(options[i].description));
+  fprintf (stream, _("  esa         Disassemble in ESA architecture mode\n"));
+  fprintf (stream, _("  zarch       Disassemble in z/Architecture mode\n"));
 }
