@@ -409,7 +409,8 @@ const char extra_symbol_chars[] = "*%-([{"
 	 && !defined (TE_NETWARE)			\
 	 && !defined (TE_FreeBSD)			\
 	 && !defined (TE_DragonFly)			\
-	 && !defined (TE_NetBSD)))
+	 && !defined (TE_NetBSD)			\
+	 && !defined (TE_BeOS)))
 /* This array holds the chars that always start a comment.  If the
    pre-processor is disabled, these aren't very useful.  The option
    --divide will remove '/' from this list.  */
